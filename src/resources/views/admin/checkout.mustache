@@ -1,0 +1,30 @@
+<form action="admin/spreadshirt/admincheckout/orderProducts" method="POST">
+    <table class="table table-bordered">
+        {{#orders}}
+            <tr>
+                <td>{{orderId}}</td>
+            </tr>
+            {{#items.products}}
+                {{#spreadShirtProductId}}
+                    <tr>
+                        <td>{{name[]}}</td>
+                        <td>{{variation}}</td>
+                        <td align="right" >
+                            <input
+                                type="checkbox"
+                                checked="checked"
+                                name="products[{{spreadShirtProductId}}][quantity][{{variation}}]"
+                                value="{{quantity}}"
+                            />
+                        </td>
+                    </tr>
+                {{/spreadShirtProductId}}
+            {{/items.products}}
+        {{/orders}}
+        <tr>
+            <td align="right" colspan="3">
+                <button type="submit" class="btn btn-success">naar checkout</button>
+            </td>
+        </tr>
+    </table>
+</form>

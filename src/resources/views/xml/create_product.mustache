@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<product xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://api.spreadshirt.net">
+    <productType id="{{productTypeId}}"/>
+    <appearance id="{{appearanceId}}"/>
+    <configurations>
+        <configuration type="design">
+            <printArea id="{{printAreaId}}"/>
+            <printType id="{{printTypeId}}"/>
+            <offset unit="mm">
+                <x>{{offsetLeft}}</x>
+                <y>{{offsetTop}}</y>
+            </offset>
+            <content dpi="25.4" unit="mm">
+                <svg>
+                    <image width="{{imageWidth}}" height="{{imageHeight}}" printColorIds="{{printColorIds}}" printColorRGBs="{{printColorRGBs}}" designId="{{designId}}"/>
+                </svg>
+            </content>
+        </configuration>
+    </configurations>
+</product>
