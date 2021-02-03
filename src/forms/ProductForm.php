@@ -57,16 +57,13 @@ class ProductForm extends AbstractForm implements ModuleInterface
                 $printAreas[$printAreaId] = $views[(int)XmlUtil::getAttribute($printArea->defaultView, 'id')];
             endforeach;
 
-            $this->_(
-                'select',
+            $this->addDropdown(
                 'productTypePrintAreaId',
                 'productTypePrintAreaId',
-                [
-                    'required' => 'required',
-                    'options'  => ElementHelper::arrayToSelectOptions($printAreas),
-                    'value'    => (int)$item->_('productTypePrintAreaId'),
-                    'readonly' => $readOnly,
-                ]
+                (new Attributes())->setRequired()
+                    ->setReadonly()
+                    ->setDefaultValue((int)$item->_('productTypePrintAreaId'))
+                    ->setOptions(ElementHelper::arrayToSelectOptions($printAreas))
             );
 
             /*echo '<pre>';
@@ -76,30 +73,14 @@ class ProductForm extends AbstractForm implements ModuleInterface
             endforeach;
             die();*/
             Design::setFindValue('printTypeIds', ['$in' => $printTypeIds]);
-            $this->_(
-                'select',
+            $this->addDropdown(
                 'Design',
                 'design',
-                [
-                    'required' => 'required',
-                    'options'  => ElementHelper::arrayToSelectOptions(Design::findAll()),
-                    'readonly' => $readOnly,
-                ]
-            )->_(
-                'text',
-                'Scale',
-                'scale',
-                [
-                    'required' => 'required',
-                ]
-            )->_(
-                'text',
-                'Offset top',
-                'offsetTop',
-                [
-                    'inputType' => 'number',
-                ]
-            );
+                (new Attributes())->setRequired()
+                    ->setReadonly()
+                    ->setOptions(ElementHelper::arrayToSelectOptions(Design::findAll())))
+                ->addText('Scale', 'scale',(new Attributes())->setRequired())
+                ->addNumber('Offset top', 'offsetTop');
 
             $combinedPrintTypeIds = [];
             if ($item->_('design')) :
@@ -120,16 +101,13 @@ class ProductForm extends AbstractForm implements ModuleInterface
                         endif;
                     endif;
                 endforeach;
-                $this->_(
-                    'select',
+                $this->addDropdown(
                     'printTypeId',
                     'printTypeId',
-                    [
-                        'required' => 'required',
-                        'options'  => ElementHelper::arrayToSelectOptions($combinedPrintTypeIds),
-                        'value'    => (int)$item->_('printTypeId'),
-                        'readonly' => $readOnly,
-                    ]
+                    (new Attributes())->setRequired()
+                        ->setReadonly()
+                        ->setDefaultValue((int)$item->_('printTypeId'))
+                        ->setOptions(ElementHelper::arrayToSelectOptions($combinedPrintTypeIds))
                 );
             endif;
 
@@ -154,7 +132,7 @@ class ProductForm extends AbstractForm implements ModuleInterface
             endif;
 
             if (\is_array($item->_('appearances'))) :
-                $this->_('html', '', '', ['html' => '<div class="row">']);
+                $this->addHtml('<div class="row">');
                 foreach ((array)$item->_('appearances') as $appearance) :
                     $checked = true;
                     if (
@@ -165,16 +143,14 @@ class ProductForm extends AbstractForm implements ModuleInterface
                         $checked = false;
                     endif;
 
-                    $this->_('html', '', '', ['html' => '<div class="col-12 col-md-6 col-lg-2">'])->_(
-                        'checkbox',
+                    $this->addHtml('<div class="col-12 col-md-6 col-lg-2">')
+                        ->addToggle(
                         '<img onclick="$(this).closest(\'.form-group\').toggleClass(\'selected\')" src="'.$appearance['image'].'?height=250"/>',
                         'selectedVariations['.$appearance['color'].']',
-                        [
-                            'checked' => $checked,
-                        ]
-                    )->_('html', '', '', ['html' => '</div>']);
+                            (new Attributes())->setChecked())
+                        ->addHtml('</div>');
                 endforeach;
-                $this->_('html', '', '', ['html' => '</div>']);
+                $this->addHtml('</div>');
             endif;
         endif;
 
@@ -185,11 +161,7 @@ class ProductForm extends AbstractForm implements ModuleInterface
             && $item->_('scale')
             && $item->_('printTypeId')
         ) :
-            $this->_(
-                'checkbox',
-                'Render SpreadShirt',
-                'renderSpreadShirt'
-            );
+            $this->addToggle('Render SpreadShirt', 'renderSpreadShirt');
             if ($item->_('published')) :
                 $this->addToggle('Render webshop product', 'renderShopProduct');
             endif;

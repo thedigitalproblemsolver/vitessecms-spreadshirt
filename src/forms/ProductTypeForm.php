@@ -9,6 +9,8 @@ use VitesseCms\Core\Models\Datagroup;
 use VitesseCms\Core\Utils\XmlUtil;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
+use VitesseCms\Form\Models\Attributes;
+use VitesseCms\Media\Enums\AssetsEnum;
 use VitesseCms\Shop\Models\TaxRate;
 use VitesseCms\Spreadshirt\Factories\PrintTypeFactory;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
@@ -24,8 +26,8 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
      */
     public function initialize(ProductType $item): void
     {
-        Datagroup::setFindValue('component',SystemEnum::COMPONENT_WEBSHOP_PRODUCT);
-        Datagroup::setFindValue('parentId',null);
+        Datagroup::setFindValue('component', SystemEnum::COMPONENT_WEBSHOP_PRODUCT);
+        Datagroup::setFindValue('parentId', null);
         $datagroups = Datagroup::findAll();
         $itemOptions = [];
         foreach ($datagroups as $datagroup) :
@@ -42,20 +44,20 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
 
         $html = '<div class="row">
             <div class="col-12 col-md-6 col-lg-2">
-                <img src="'.$item->_('previewImage').'" />
+                <img src="' . $item->_('previewImage') . '" />
             </div>';
-        foreach($item->_('appearances') as $appearanceId => $appearance) :
+        foreach ($item->_('appearances') as $appearanceId => $appearance) :
             $html .= '<div class="col-12 col-md-6 col-lg-2">
-                <img src="'.$appearance['image'].'" />&nbsp;'.$appearance['colorName'].' ('.$appearanceId.')<br />';
+                <img src="' . $appearance['image'] . '" />&nbsp;' . $appearance['colorName'] . ' (' . $appearanceId . ')<br />';
             foreach ($appearance['stockStates'] as $size => $stock) {
-                $html .= $size.' : '.$stock.'<br/>';
+                $html .= $size . ' : ' . $stock . '<br/>';
             }
             $html .= '<br /></div>';
         endforeach;
         $html .= '</div>';
 
         $productTypeItems = [];
-        if($this->setting->has('SPREADSHIRT_DATAGROUP_MANUFACTURER')) :
+        if ($this->setting->has('SPREADSHIRT_DATAGROUP_MANUFACTURER')) :
             Item::setFindValue('datagroup', $this->setting->get('SPREADSHIRT_DATAGROUP_MANUFACTURER'));
             Item::addFindOrder('name');
             $productTypeItems = Item::findAll();
@@ -63,23 +65,23 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
 
         $productTypeXml = $this->spreadshirt->productType->get((int)$item->_('productTypeId'));
         $views = [];
-        foreach($productTypeXml->views->view as $view) :
-            $views[(int)XmlUtil::getAttribute($view,'id')] = (string)$view->name;
+        foreach ($productTypeXml->views->view as $view) :
+            $views[(int)XmlUtil::getAttribute($view, 'id')] = (string)$view->name;
         endforeach;
-        foreach($productTypeXml->printAreas->printArea as $printArea) :
-            $printAreaId = (int)XmlUtil::getAttribute($printArea,'id');
-            $printAreas[$printAreaId] = $views[(int)XmlUtil::getAttribute($printArea->defaultView,'id')];
+        foreach ($productTypeXml->printAreas->printArea as $printArea) :
+            $printAreaId = (int)XmlUtil::getAttribute($printArea, 'id');
+            $printAreas[$printAreaId] = $views[(int)XmlUtil::getAttribute($printArea->defaultView, 'id')];
         endforeach;
 
         $printTypesIds = [];
-        foreach($productTypeXml->appearances->appearance as $appearance) :
+        foreach ($productTypeXml->appearances->appearance as $appearance) :
             foreach ($appearance->printTypes->printType as $printType) :
-                $printTypeId = (int) XmlUtil::getAttribute($printType,'id');
-                if(!isset($printTypes[$printTypeId])) :
+                $printTypeId = (int)XmlUtil::getAttribute($printType, 'id');
+                if (!isset($printTypes[$printTypeId])) :
                     PrintType::setFindValue('printTypeId', (string)$printTypeId);
-                    if( PrintType::count() === 0 ):
+                    if (PrintType::count() === 0):
                         PrintType::setFindValue('printTypeId', (int)$printTypeId);
-                        if( PrintType::count() === 0 ):
+                        if (PrintType::count() === 0):
                             $printTypeXml = $this->spreadshirt->printType->get($printTypeId);
                             $type = PrintTypeFactory::create(
                                 (string)$printTypeXml->name,
@@ -100,92 +102,39 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
             endforeach;
         endforeach;
 
-        $this->_(
-            'text',
-            'productTypeId',
-            'productTypeId',
-            [
-                'readonly' => true
-            ]
-        )->_(
-            'select',
-            'Create product as Child of',
-            'productParentItem',
-            [
-                'options' => ElementHelper::arrayToSelectOptions($itemOptions),
-                'inputClass' => 'select2'
-            ]
-        )->_(
-            'select',
-            'Manufacturer',
-            'manufacturer',
-            [
-                'options' => ElementHelper::arrayToSelectOptions($productTypeItems,[], true),
-                'inputClass' => 'select2'
-            ]
-        )->_(
-            'number',
-            'Purchase price ex VAT',
-            'price_purchase',
-            [ 'step' => '0.01']
-        )->_(
-            'number',
-            'Sale Price incl. VAT',
-            'price_sale',
-            [ 'step' => '0.01']
-        )->_(
-            'select',
-            'Tax-Rate',
-            'taxrate',
-            [
-                'options' => TaxRate::class
-            ]
-        )->_(
-            'select',
-            'productTypePrintAreaId',
-            'productTypePrintAreaId',
-            [
-                'required' => 'required',
-                'options'  => ElementHelper::arrayToSelectOptions($printAreas),
-                'value' => (int)$item->_('productTypePrintAreaId'),
-            ]
-        )->_(
-            'select',
-            'printTypeId',
-            'printTypeId',
-            [
-                'required' => 'required',
-                'options'  => ElementHelper::arrayToSelectOptions($printTypesIds),
-                'value' => (int)$item->_('printTypeId')
-            ]
-        )->_(
-            'html',
-            'html',
-            'html',
-            [
-                'html' => $html
-            ]
-        )->_(
-            'text',
-            'Introtext',
-            'introtext'
-        )->_(
-            'textarea',
-            'Bodytext',
-            'bodytext',
-            [
-                'inputClass' => 'editor'
-            ]
-        )->_(
-            'textarea',
-            'Sizetable',
-            'sizeTable',
-            [
-                'inputClass' => 'editor'
-            ]
-        )->_(
-            'submit',
-            '%CORE_SAVE%'
-        );
+        $this->addText('productTypeId', 'productTypeId', (new Attributes())->setReadonly())
+            ->addDropdown(
+                'Create product as Child of',
+                'productParentItem',
+                (new Attributes())->setInputClass(AssetsEnum::SELECT2)
+                    ->setOptions(ElementHelper::arrayToSelectOptions($itemOptions)))
+            ->addDropdown(
+                'Manufacturer',
+                'manufacturer',
+                (new Attributes())->setInputClass(AssetsEnum::SELECT2)
+                    ->setOptions(ElementHelper::arrayToSelectOptions($productTypeItems, [], true)))
+            ->addNumber('Purchase price ex VAT', 'price_purchase', (new Attributes())->setStep(0.01))
+            ->addNumber('Sale Price incl. VAT', 'price_sale', (new Attributes())->setStep(0.01))
+            ->addDropdown(
+                'Tax-Rate',
+                'taxrate',
+                (new Attributes())->setOptions(ElementHelper::arrayToSelectOptions(TaxRate::findAll())))
+            ->addDropdown(
+                'productTypePrintAreaId',
+                'productTypePrintAreaId',
+                (new Attributes())->setRequired()
+                    ->setDefaultValue((int)$item->_('productTypePrintAreaId'))
+                    ->setOptions(ElementHelper::arrayToSelectOptions($printAreas)))
+            ->addDropdown(
+                'printTypeId',
+                'printTypeId',
+                (new Attributes())->setRequired()
+                    ->setDefaultValue((int)$item->_('printTypeId'))
+                    ->setOptions(ElementHelper::arrayToSelectOptions($printTypesIds)))
+            ->addHtml($html)
+            ->addText('Introtext', 'introtext')
+            ->addEditor('Bodytext', 'bodytext')
+            ->addEditor('Sizetable', 'sizeTable')
+            ->addSubmitButton('%CORE_SAVE%');
     }
 }

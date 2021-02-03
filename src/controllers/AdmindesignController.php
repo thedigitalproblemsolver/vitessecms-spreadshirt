@@ -10,6 +10,7 @@ use VitesseCms\Database\Interfaces\BaseCollectionInterface;
 use VitesseCms\Database\Models\FindValue;
 use VitesseCms\Database\Models\FindValueIterator;
 use VitesseCms\Form\Forms\BaseForm;
+use VitesseCms\Form\Models\Attributes;
 use VitesseCms\Spreadshirt\Factories\DesignFactory;
 use VitesseCms\Spreadshirt\Factories\ProductFactory;
 use VitesseCms\Spreadshirt\Forms\DesignForm;
@@ -133,11 +134,10 @@ class AdmindesignController
                 false
             );
             if ($designs === 0) :
-                $form->_(
-                    'checkbox',
+                $form->addToggle(
                     (string)$design->name,
                     'design['.$designId.']',
-                    ['value' => $designId]
+                    (new Attributes())->setDefaultValue($designId)
                 );
             endif;
         endforeach;
