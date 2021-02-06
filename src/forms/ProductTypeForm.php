@@ -5,7 +5,7 @@ namespace VitesseCms\Spreadshirt\Forms;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\Enum\SystemEnum;
 use VitesseCms\Core\Helpers\ItemHelper;
-use VitesseCms\Core\Models\Datagroup;
+use VitesseCms\Datagroup\Models\Datagroup;
 use VitesseCms\Core\Utils\XmlUtil;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
