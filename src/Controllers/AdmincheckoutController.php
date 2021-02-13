@@ -31,12 +31,12 @@ class AdmincheckoutController
         //die();
 
         /*ViewHelper::setVar('orders', $orders);
-        ViewHelper::setTemplatePath($this->config->get('rootDir').'src/spreadshirt/resources/views/admin/');
+        ViewHelper::setTemplatePath($this->config->get('rootDir').'src/spreadshirt/Resources/views/admin/');
         ViewHelper::setTemplate('checkout');*/
 
         $this->view->setVar('content', $this->view->renderTemplate(
             'checkout',
-            $this->configuration->getRootDir().'src/spreadshirt/resources/views/admin/',
+            $this->configuration->getRootDir().'src/spreadshirt/Resources/views/admin/',
             ['orders' => $orders]
         ));
         $this->prepareView();
