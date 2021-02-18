@@ -10,7 +10,8 @@ class DesignFactory
         string $name,
         string $designId,
         bool $published = false
-    ): Design {
+    ): Design
+    {
         return (new Design())
             ->set('name', $name)
             ->set('designId', $designId)

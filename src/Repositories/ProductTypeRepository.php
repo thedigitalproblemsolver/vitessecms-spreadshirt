@@ -9,11 +9,12 @@ class ProductTypeRepository
     public function getById(
         string $id,
         bool $hideUnpublished = true
-    ): ?ProductType {
+    ): ?ProductType
+    {
         ProductType::setFindPublished($hideUnpublished);
         /** @var ProductType $productType */
         $productType = ProductType::findById($id);
-        if(is_object($productType)):
+        if (is_object($productType)):
             return $productType;
         endif;
 

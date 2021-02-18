@@ -57,126 +57,20 @@ class ProductHelper extends AbstractSpreadShirtHelper
         $this->errors = [];
     }
 
-    public function get(int $id): \SimpleXMLElement
-    {
-        $ch = $this->getCurlInstance($this->baseUrl.'products/'.$id, 'GET');
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return new \SimpleXMLElement($result);
-    }
-
-    public function setProductType(int $productTypeId): ProductHelper
-    {
-        $attributes = $this->shop->productTypes->attributes($this->namespaces['xlink']);
-        $ch = $this->getCurlInstance($attributes->href.'/'.$productTypeId, 'GET');
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        $this->productType = new \SimpleXMLElement($result);
-
-        return $this;
-    }
-
-    public function setDesign(string $designId): ProductHelper
-    {
-        $attributes = $this->shop->designs->attributes($this->namespaces['xlink']);
-        $ch = $this->getCurlInstance($attributes->href.'/'.$designId, 'GET');
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        $this->design = new \SimpleXMLElement($result);
-        $this->designApi = DesignApiFactory::createFromXml($this->design);
-
-        return $this;
-    }
-
-    public function prepareProductXml(
-        Product $product,
-        int $productTypeAppearanceId,
-        \SimpleXMLElement $printType
-    ): \SimpleXMLElement {
-        $printArea = null;
-
-        foreach ($this->productType->printAreas->printArea as $current) :
-            if (XmlUtil::getAttribute($current, 'id') === $product->getProductTypePrintAreaId()) :
-                $printArea = $current;
-            endif;
-        endforeach;
-
-        $printColorRGBs = '';
-        $printColorIds = $product->getPrintTypeBaseColor();
-        if (
-            $product->getPrintTypeBaseColor() === null
-            && $this->designApi->getFileExtension() === 'svg'
-        ) :
-            $printColorRGBs = implode(',',$this->designApi->getColors());
-            //$printColorIds  = implode(',',$this->designApi->getColorIds());
-        endif;
-
-        switch ($this->designApi->getFileExtension()):
-            case 'svg':
-                $dimensions = $this->getSvgDimensions($printType, $product->getScale());
-                break;
-            case 'png':
-            default:
-                $dimensions = $this->getPngDimensions($printType, $product->getScale());
-        endswitch;
-
-        $productXml = $this->view->renderModuleTemplate(
-            'spreadshirt',
-            'create_product',
-            'xml/',
-            [
-                'printColorRGBs' => $printColorRGBs,
-                'productTypeId'  => XmlUtil::getAttribute($this->productType, 'id'),
-                'appearanceId'   => $productTypeAppearanceId,
-                'printAreaId'    => $product->getProductTypePrintAreaId(),
-                'printTypeId'    => XmlUtil::getAttribute($printType, 'id'),
-                'offsetLeft'     => ((doubleval($printArea->boundary->size->width) - doubleval($dimensions['width'])) / 2),
-                'offsetTop'      => ((doubleval($printArea->boundary->size->height) - doubleval($dimensions['height'])) / 4) + $product->getOffsetTop(),
-                'imageWidth'     => $dimensions['width'],
-                'imageHeight'    => $dimensions['height'],
-                'designId'       => $this->designApi->getId(),
-                'printColorIds'  => $printColorIds,
-            ]
-        );
-
-        return new \SimpleXMLElement($productXml);
-    }
-
-    public function createProduct(\SimpleXMLElement $product): int
-    {
-        $attributes = $this->shop->products->attributes($this->namespaces['xlink']);
-
-        $ch = $this->getCurlInstance($attributes->href, 'POST', 'application/xml');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $product->asXML());
-        $result = curl_exec($ch);
-        curl_close($ch);
-        $productId = (int)XmlUtil::getAttribute(new \SimpleXMLElement($result), 'id');
-
-        if ($productId) :
-            return $productId;
-        else :
-            $this->errors[] = $result;
-        endif;
-
-        return 0;
-    }
-
     public function getAppearances(
         Product $product,
         ProductTypeHelper $productTypeHelper,
         PrintTypeHelper $printTypeHelper,
         RepositoryInterface $repositoryCollection
-    ): array {
+    ): array
+    {
         $design = $repositoryCollection->design->getById($product->getDesignId(), false);
         $productType = $repositoryCollection->productType->getById($product->getProductTypeId(), false);
         if ($design === null || $productType === null):
             return [];
         endif;
 
-        $product->set('name', $productType->_('name').' - '.$design->_('name'), true);
+        $product->set('name', $productType->_('name') . ' - ' . $design->_('name'), true);
         $productTypeXml = $productTypeHelper->get($productType->_('productTypeId'));
 
         $this->setDesign($design->getDesignId());
@@ -203,10 +97,10 @@ class ProductHelper extends AbstractSpreadShirtHelper
                 endif;
                 $appearances[] = [
                     'productId' => $productId,
-                    'color'     => strtolower($colorHex),
-                    'colorId'   => $productTypeAppearance->getId(),
+                    'color' => strtolower($colorHex),
+                    'colorId' => $productTypeAppearance->getId(),
                     'colorName' => str_replace('/', '_', $productTypeAppearance->getName()),
-                    'image'     => (string)$attributes->href,
+                    'image' => (string)$attributes->href,
                 ];
             endif;
         endforeach;
@@ -214,10 +108,90 @@ class ProductHelper extends AbstractSpreadShirtHelper
         return $appearances;
     }
 
+    public function setDesign(string $designId): ProductHelper
+    {
+        $attributes = $this->shop->designs->attributes($this->namespaces['xlink']);
+        $ch = $this->getCurlInstance($attributes->href . '/' . $designId, 'GET');
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        $this->design = new \SimpleXMLElement($result);
+        $this->designApi = DesignApiFactory::createFromXml($this->design);
+
+        return $this;
+    }
+
+    public function setProductType(int $productTypeId): ProductHelper
+    {
+        $attributes = $this->shop->productTypes->attributes($this->namespaces['xlink']);
+        $ch = $this->getCurlInstance($attributes->href . '/' . $productTypeId, 'GET');
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        $this->productType = new \SimpleXMLElement($result);
+
+        return $this;
+    }
+
+    public function prepareProductXml(
+        Product $product,
+        int $productTypeAppearanceId,
+        \SimpleXMLElement $printType
+    ): \SimpleXMLElement
+    {
+        $printArea = null;
+
+        foreach ($this->productType->printAreas->printArea as $current) :
+            if (XmlUtil::getAttribute($current, 'id') === $product->getProductTypePrintAreaId()) :
+                $printArea = $current;
+            endif;
+        endforeach;
+
+        $printColorRGBs = '';
+        $printColorIds = $product->getPrintTypeBaseColor();
+        if (
+            $product->getPrintTypeBaseColor() === null
+            && $this->designApi->getFileExtension() === 'svg'
+        ) :
+            $printColorRGBs = implode(',', $this->designApi->getColors());
+            //$printColorIds  = implode(',',$this->designApi->getColorIds());
+        endif;
+
+        switch ($this->designApi->getFileExtension()):
+            case 'svg':
+                $dimensions = $this->getSvgDimensions($printType, $product->getScale());
+                break;
+            case 'png':
+            default:
+                $dimensions = $this->getPngDimensions($printType, $product->getScale());
+        endswitch;
+
+        $productXml = $this->view->renderModuleTemplate(
+            'spreadshirt',
+            'create_product',
+            'xml/',
+            [
+                'printColorRGBs' => $printColorRGBs,
+                'productTypeId' => XmlUtil::getAttribute($this->productType, 'id'),
+                'appearanceId' => $productTypeAppearanceId,
+                'printAreaId' => $product->getProductTypePrintAreaId(),
+                'printTypeId' => XmlUtil::getAttribute($printType, 'id'),
+                'offsetLeft' => ((doubleval($printArea->boundary->size->width) - doubleval($dimensions['width'])) / 2),
+                'offsetTop' => ((doubleval($printArea->boundary->size->height) - doubleval($dimensions['height'])) / 4) + $product->getOffsetTop(),
+                'imageWidth' => $dimensions['width'],
+                'imageHeight' => $dimensions['height'],
+                'designId' => $this->designApi->getId(),
+                'printColorIds' => $printColorIds,
+            ]
+        );
+
+        return new \SimpleXMLElement($productXml);
+    }
+
     public function getSvgDimensions(SimpleXMLElement $printType, float $scale = 1.0): array
     {
         return [
-            'width'  => $printType->size->width * $scale,
+            'width' => $printType->size->width * $scale,
             'height' => $printType->size->height * $scale,
         ];
     }
@@ -225,9 +199,10 @@ class ProductHelper extends AbstractSpreadShirtHelper
     public function getPngDimensions(
         SimpleXMLElement $printType,
         float $scale
-    ): array {
+    ): array
+    {
         return [
-            'width'  => $printType->size->width * $scale,
+            'width' => $printType->size->width * $scale,
             'height' => $printType->size->height * $scale,
         ];
 
@@ -259,6 +234,34 @@ class ProductHelper extends AbstractSpreadShirtHelper
         endif;
 
         return $dimensions;*/
+    }
+
+    public function createProduct(\SimpleXMLElement $product): int
+    {
+        $attributes = $this->shop->products->attributes($this->namespaces['xlink']);
+
+        $ch = $this->getCurlInstance($attributes->href, 'POST', 'application/xml');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $product->asXML());
+        $result = curl_exec($ch);
+        curl_close($ch);
+        $productId = (int)XmlUtil::getAttribute(new \SimpleXMLElement($result), 'id');
+
+        if ($productId) :
+            return $productId;
+        else :
+            $this->errors[] = $result;
+        endif;
+
+        return 0;
+    }
+
+    public function get(int $id): \SimpleXMLElement
+    {
+        $ch = $this->getCurlInstance($this->baseUrl . 'products/' . $id, 'GET');
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return new \SimpleXMLElement($result);
     }
 
     public function getNamespaces(): array

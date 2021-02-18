@@ -10,10 +10,11 @@ class DesignRepository
     public function countAll(
         ?FindValueIterator $findValues = null,
         bool $hideUnpublished = true
-    ): int {
+    ): int
+    {
         Design::setFindPublished($hideUnpublished);
 
-        if($findValues !== null) :
+        if ($findValues !== null) :
             while ($findValues->valid()) :
                 $findValue = $findValues->current();
                 Design::setFindValue(
@@ -34,7 +35,7 @@ class DesignRepository
 
         /** @var Design $design */
         $design = Design::findById($id);
-        if(is_object($design)):
+        if (is_object($design)):
             return $design;
         endif;
 

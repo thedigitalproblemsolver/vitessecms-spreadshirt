@@ -13,6 +13,6 @@ class ProductType extends AbstractCollection
 
     public function getProductTypeId(): ?int
     {
-        return $this->productTypeId?(int)$this->productTypeId:null;
+        return $this->productTypeId ? (int)$this->productTypeId : null;
     }
 }

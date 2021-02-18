@@ -7,7 +7,8 @@ use VitesseCms\Spreadshirt\Models\ProductType;
 /**
  * Class ProductTypeFactory
  */
-class ProductTypeFactory {
+class ProductTypeFactory
+{
 
     /**
      * @param string $name
@@ -18,10 +19,10 @@ class ProductTypeFactory {
     public static function create(
         string $name,
         int $productTypeId
-    ) : ProductType {
+    ): ProductType
+    {
         return (new ProductType())
-            ->set('name',$name, true)
-            ->set('productTypeId',$productTypeId)
-        ;
+            ->set('name', $name, true)
+            ->set('productTypeId', $productTypeId);
     }
 }

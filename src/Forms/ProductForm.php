@@ -79,7 +79,7 @@ class ProductForm extends AbstractForm implements ModuleInterface
                 (new Attributes())->setRequired()
                     ->setReadonly()
                     ->setOptions(ElementHelper::arrayToSelectOptions(Design::findAll())))
-                ->addText('Scale', 'scale',(new Attributes())->setRequired())
+                ->addText('Scale', 'scale', (new Attributes())->setRequired())
                 ->addNumber('Offset top', 'offsetTop');
 
             $combinedPrintTypeIds = [];
@@ -116,7 +116,7 @@ class ProductForm extends AbstractForm implements ModuleInterface
                 $dropDownOptions = [];
                 while ($printType->getColors()->valid()):
                     $color = $printType->getColors()->current();
-                    $dropDownOptions[$color->getId()] = $color->getName().' ( '.$color->getHex().' )';
+                    $dropDownOptions[$color->getId()] = $color->getName() . ' ( ' . $color->getHex() . ' )';
                     $printType->getColors()->next();
                 endwhile;
                 $this->addDropdown(
@@ -145,8 +145,8 @@ class ProductForm extends AbstractForm implements ModuleInterface
 
                     $this->addHtml('<div class="col-12 col-md-6 col-lg-2">')
                         ->addToggle(
-                        '<img onclick="$(this).closest(\'.form-group\').toggleClass(\'selected\')" src="'.$appearance['image'].'?height=250"/>',
-                        'selectedVariations['.$appearance['color'].']',
+                            '<img onclick="$(this).closest(\'.form-group\').toggleClass(\'selected\')" src="' . $appearance['image'] . '?height=250"/>',
+                            'selectedVariations[' . $appearance['color'] . ']',
                             (new Attributes())->setChecked())
                         ->addHtml('</div>');
                 endforeach;

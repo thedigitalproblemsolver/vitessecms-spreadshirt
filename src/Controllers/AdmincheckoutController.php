@@ -36,7 +36,7 @@ class AdmincheckoutController
 
         $this->view->setVar('content', $this->view->renderTemplate(
             'checkout',
-            $this->configuration->getRootDir().'src/spreadshirt/Resources/views/admin/',
+            $this->configuration->getRootDir() . 'src/spreadshirt/Resources/views/admin/',
             ['orders' => $orders]
         ));
         $this->prepareView();
@@ -98,10 +98,10 @@ class AdmincheckoutController
 
                             $this->spreadshirt->basket->addItem(
                                 $basket->_('basketId'),
-                                (string) $appearance['productId'],
-                                (int) $quantity,
-                                (string) $orderSize,
-                                (string) $appearance['colorId']
+                                (string)$appearance['productId'],
+                                (int)$quantity,
+                                (string)$orderSize,
+                                (string)$appearance['colorId']
                             );
                         endif;
                     endforeach;

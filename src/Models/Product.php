@@ -55,7 +55,7 @@ class Product extends AbstractCollection
         ) :
             $design = Design::findById($this->design);
             $productType = ProductType::findById($this->productType);
-            $this->set('name', $productType->_('name').' - '.$design->_('name'), true);
+            $this->set('name', $productType->_('name') . ' - ' . $design->_('name'), true);
         endif;
     }
 
@@ -104,7 +104,7 @@ class Product extends AbstractCollection
     public function getPrintTypeBaseColor(): ?int
     {
         if (!empty($this->PrintTypeBaseColor)):
-            return (int) $this->PrintTypeBaseColor;
+            return (int)$this->PrintTypeBaseColor;
         endif;
 
         return null;

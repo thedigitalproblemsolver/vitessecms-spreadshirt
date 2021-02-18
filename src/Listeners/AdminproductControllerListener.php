@@ -31,7 +31,8 @@ class AdminproductControllerListener
         Event $event,
         AdminproductController $controller,
         Product $product
-    ): void {
+    ): void
+    {
         if (
             $controller->request->hasPost('renderSpreadShirt')
             && $product->getDesignId() !== null
@@ -39,7 +40,7 @@ class AdminproductControllerListener
             && $product->getProductTypePrintAreaId() !== null
             && $product->getPrintTypeId() !== null
         ) :
-            $product->setAppearances( $controller->spreadshirt->product->getAppearances(
+            $product->setAppearances($controller->spreadshirt->product->getAppearances(
                 $product,
                 $controller->spreadshirt->productType,
                 $controller->spreadshirt->printType,

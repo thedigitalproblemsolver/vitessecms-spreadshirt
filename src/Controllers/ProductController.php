@@ -96,7 +96,8 @@ class ProductController extends AbstractController implements ModuleInterface
         AbstractCollection $item,
         AbstractCollection $newItem,
         ProductType $productType
-    ): void {
+    ): void
+    {
         $productTypeXml = $this->spreadshirt->productType->get((int)$productType->_('productTypeId'));
         $sizes = $variations = [];
         foreach ($productTypeXml->sizes->size as $size) :
@@ -106,11 +107,11 @@ class ProductController extends AbstractController implements ModuleInterface
         $imageDir = $this->config->get('uploadDir');
         foreach ((array)$item->_('appearances') as $appearance) :
             if (isset($item->_('selectedVariations')[$appearance['color']])) :
-                $imageFile = 'products/'.FileUtil::sanatize($item->_('name').' '.$appearance['colorName']).'.jpg';
-                if (!is_file($imageDir.$imageFile)) :
+                $imageFile = 'products/' . FileUtil::sanatize($item->_('name') . ' ' . $appearance['colorName']) . '.jpg';
+                if (!is_file($imageDir . $imageFile)) :
                     file_put_contents(
-                        $imageDir.$imageFile,
-                        $this->spreadshirt->product->getUrl($appearance['image'].'.jpg?height=1200')
+                        $imageDir . $imageFile,
+                        $this->spreadshirt->product->getUrl($appearance['image'] . '.jpg?height=1200')
                     );
                 endif;
 
@@ -120,24 +121,24 @@ class ProductController extends AbstractController implements ModuleInterface
 
                 foreach ($sizes as $size) :
                     if (isset(FieldSizeAndColorEnum::sizes[$size])) :
-                        if( strtolower($size) === 'one size') :
+                        if (strtolower($size) === 'one size') :
                             $size = 'ONE SIZE';
                         endif;
 
                         if (isset($productType->_('appearances')[$appearance['colorId']]['stockStates'][$size])) :
                             $variations[] = [
-                                'sku'          => str_replace(' ', '_',
-                                    strtoupper($appearance['colorName'].'_'.$size)),
-                                'size'         => $size,
-                                'color'        => $appearance['color'],
-                                'stock'        => (int)$productType->_('appearances')[$appearance['colorId']]['stockStates'][$size],
+                                'sku' => str_replace(' ', '_',
+                                    strtoupper($appearance['colorName'] . '_' . $size)),
+                                'size' => $size,
+                                'color' => $appearance['color'],
+                                'stock' => (int)$productType->_('appearances')[$appearance['colorId']]['stockStates'][$size],
                                 'stockMinimal' => 10,
-                                'ean'          => '',
-                                'image'        => [$imageFile],
+                                'ean' => '',
+                                'image' => [$imageFile],
                             ];
                         endif;
                     else :
-                        die('Maat '.$size.' niet in systeem');
+                        die('Maat ' . $size . ' niet in systeem');
                     endif;
                 endforeach;
             endif;

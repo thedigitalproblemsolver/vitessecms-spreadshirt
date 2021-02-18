@@ -37,7 +37,7 @@ class AdmindesignController
         if (!$item->_('designId')) :
             Item::setFindPublished(false);
             $baseDesign = Item::findById($item->_('baseDesign'));
-            $file = $this->config->get('uploadDir').$baseDesign->_('spreadshirtRasterizedImage');
+            $file = $this->config->get('uploadDir') . $baseDesign->_('spreadshirtRasterizedImage');
             if (is_file($file)) :
                 $item->set('designId',
                     $this->spreadshirt->design->createDesign($item->_('name'), $baseDesign->_('description')));
@@ -63,8 +63,7 @@ class AdmindesignController
     public function afterPublish(BaseCollectionInterface $item): void
     {
         $products = $this->repositories->product
-            ->getByDesign((string)$item->getId(), false)
-        ;
+            ->getByDesign((string)$item->getId(), false);
 
         while ($products->valid()) :
             $product = $products->current();
@@ -72,7 +71,7 @@ class AdmindesignController
             $productType = $this->repositories->productType->getById(
                 $product->getProductTypeId(), false
             );
-            if( $ItemIsPublished && ($productType === null || !$productType->isPublished())) :
+            if ($ItemIsPublished && ($productType === null || !$productType->isPublished())) :
                 $ItemIsPublished = false;
             endif;
 
@@ -118,7 +117,7 @@ class AdmindesignController
                 $counter++;
             endif;
         endforeach;
-        $this->flash->message('notice', $counter.' products created');
+        $this->flash->message('notice', $counter . ' products created');
         $this->redirect();
     }
 
@@ -136,7 +135,7 @@ class AdmindesignController
             if ($designs === 0) :
                 $form->addToggle(
                     (string)$design->name,
-                    'design['.$designId.']',
+                    'design[' . $designId . ']',
                     (new Attributes())->setDefaultValue($designId)
                 );
             endif;

@@ -32,7 +32,8 @@ class RepositoryCollection implements RepositoryInterface
         ItemRepository $itemRepository,
         DesignRepository $designRepository,
         ProductTypeRepository $productTypeRepository
-    ) {
+    )
+    {
         $this->product = $productRepository;
         $this->item = $itemRepository;
         $this->design = $designRepository;

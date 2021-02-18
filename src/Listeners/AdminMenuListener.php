@@ -21,12 +21,11 @@ class AdminMenuListener
                 ->addChild('Designs', 'admin/spreadshirt/admindesign/adminList')
                 ->addChild('ProductTypes', 'admin/spreadshirt/adminproducttype/adminList')
                 ->addChild('PrintTypes', 'admin/spreadshirt/adminprinttype/adminList')
-                ->addChild('Settings', 'admin/setting/adminsetting/adminList?filter[name.'.
-                    Di::getDefault()->get('configuration')->getLanguageShort().
+                ->addChild('Settings', 'admin/setting/adminsetting/adminList?filter[name.' .
+                    Di::getDefault()->get('configuration')->getLanguageShort() .
                     ']=spreadshirt'
                 )
-                ->addChild('Render ShopProduct','spreadshirt/product/rendershopproduct ')
-            ;
+                ->addChild('Render ShopProduct', 'spreadshirt/product/rendershopproduct ');
 
             $adminMenu->addDropdown('Spreadshirt', $children);
         endif;

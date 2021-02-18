@@ -11,7 +11,8 @@ class ProductRepository
     public function getByProductType(
         string $productTypeId,
         bool $hideUnpublished = true
-    ): ProductIterator {
+    ): ProductIterator
+    {
         Product::setFindPublished($hideUnpublished);
         Product::setFindValue('productType', $productTypeId);
 
@@ -21,7 +22,8 @@ class ProductRepository
     public function getByDesign(
         string $designId,
         bool $hideUnpublished = true
-    ): ProductIterator {
+    ): ProductIterator
+    {
         Product::setFindPublished($hideUnpublished);
         Product::setFindValue('design', $designId);
 

@@ -11,23 +11,22 @@ class DesignApiFactory
     public static function createFromXml(SimpleXMLElement $simpleXMLElement): DesignApi
     {
         $colors = $colorIds = [];
-        foreach($simpleXMLElement->colors as $key => $value) :
+        foreach ($simpleXMLElement->colors as $key => $value) :
             $value = (array)$value;
-            if(is_object($value['color'])) {
+            if (is_object($value['color'])) {
                 $colors[] = (string)$value['color']->default;
             }
-            if(is_array($value['color'])) {
-                foreach($value['color'] as $color) :
+            if (is_array($value['color'])) {
+                foreach ($value['color'] as $color) :
                     $colors[] = (string)$color->default;
                 endforeach;
             }
         endforeach;
 
         return (new DesignApi())
-            ->setId((int) XmlUtil::getAttribute($simpleXMLElement, 'id'))
+            ->setId((int)XmlUtil::getAttribute($simpleXMLElement, 'id'))
             ->setFileExtension((string)$simpleXMLElement->fileExtension)
             ->setColors($colors)
-            ->setColorIds($colorIds)
-            ;
+            ->setColorIds($colorIds);
     }
 }

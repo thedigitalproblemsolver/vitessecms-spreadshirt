@@ -7,7 +7,8 @@ use VitesseCms\Spreadshirt\Models\PrintType;
 /**
  * Class ProductTypeFactory
  */
-class PrintTypeFactory {
+class PrintTypeFactory
+{
 
     /**
      * @param string $name
@@ -20,11 +21,11 @@ class PrintTypeFactory {
         string $name,
         int $printTypeId,
         bool $published = false
-    ) : PrintType {
+    ): PrintType
+    {
         return (new PrintType())
-            ->set('name',$name, true)
-            ->set('printTypeId',$printTypeId)
-            ->set('published',$published)
-        ;
+            ->set('name', $name, true)
+            ->set('printTypeId', $printTypeId)
+            ->set('published', $published);
     }
 }

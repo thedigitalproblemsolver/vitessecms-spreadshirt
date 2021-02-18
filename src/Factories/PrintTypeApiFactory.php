@@ -8,13 +8,14 @@ use VitesseCms\Spreadshirt\Models\ColorIterator;
 use VitesseCms\Spreadshirt\Models\PrintTypeApi;
 use SimpleXMLElement;
 
-class PrintTypeApiFactory {
+class PrintTypeApiFactory
+{
 
     public static function createFromXml(SimpleXMLElement $simpleXMLElement): PrintTypeApi
     {
         $colors = new ColorIterator();
-        foreach($simpleXMLElement->colors->color as $key => $value) :
-            $id = (int)XmlUtil::getAttribute($value,'id');
+        foreach ($simpleXMLElement->colors->color as $key => $value) :
+            $id = (int)XmlUtil::getAttribute($value, 'id');
             $value = (array)$value;
 
             $colors->add((new Color())
@@ -25,7 +26,6 @@ class PrintTypeApiFactory {
         endforeach;
 
         return (new PrintTypeApi())
-            ->setColors($colors)
-            ;
+            ->setColors($colors);
     }
 }

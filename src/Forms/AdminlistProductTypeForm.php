@@ -11,7 +11,8 @@ class AdminlistProductTypeForm extends AbstractAdminlistFilterForm
     public static function getAdminlistForm(
         AbstractFormInterface $form,
         BaseObjectInterface $item
-    ): void {
+    ): void
+    {
         self::addNameField($form);
         self::addPublishedField($form);
     }

@@ -45,10 +45,10 @@ class AdminproducttypeController
                 $attributes = $resource->attributes($this->spreadshirt->product->getNamespaces()['xlink']);
                 $id = (int)XmlUtil::getAttribute($appearance, 'id');
                 $appearances[$id] = [
-                    'color'       => strtolower((string)$appearance->colors->color),
-                    'colorId'     => $id,
-                    'colorName'   => (string)$appearance->name,
-                    'image'       => (string)$attributes->href,
+                    'color' => strtolower((string)$appearance->colors->color),
+                    'colorId' => $id,
+                    'colorName' => (string)$appearance->name,
+                    'image' => (string)$attributes->href,
                     'stockStates' => [],
                 ];
             endforeach;
@@ -140,7 +140,7 @@ class AdminproducttypeController
             $product = $products->current();
             $ItemIsPublished = $item->isPublished();
             $design = $this->repositories->design->getById($product->getDesignId());
-            if( $ItemIsPublished && ($design === null || !$design->isPublished())) :
+            if ($ItemIsPublished && ($design === null || !$design->isPublished())) :
                 $ItemIsPublished = false;
             endif;
 

@@ -25,7 +25,8 @@ class ProductFactory
         string $designId,
         string $printTypeId,
         float $scale = 1
-    ): Product {
+    ): Product
+    {
         return (new Product())
             ->set('productType', $productTypeId)
             ->set('productTypePrintAreaId', $productTypePrintAreaId)

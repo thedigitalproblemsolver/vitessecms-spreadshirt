@@ -15,7 +15,7 @@ class ProductTypeViewHelper extends AbstractSpreadShirtHelper
      */
     public function get(int $productTypeId, int $id): \SimpleXMLElement
     {
-        $ch = $this->getCurlInstance($this->baseUrl . 'productTypes/'.$productTypeId.'/Views/'.$id,'GET');
+        $ch = $this->getCurlInstance($this->baseUrl . 'productTypes/' . $productTypeId . '/Views/' . $id, 'GET');
         $result = curl_exec($ch);
         curl_close($ch);
 
