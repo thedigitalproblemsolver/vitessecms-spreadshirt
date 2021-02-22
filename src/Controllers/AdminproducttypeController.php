@@ -112,25 +112,6 @@ class AdminproducttypeController
         $this->redirect();
     }
 
-    public function beforeModelSave(AbstractCollection $item): void
-    {
-        if (!$item->_('price_purchase') && $item->_('productTypeId')) :
-            $productTypeXml = $this->spreadshirt->productType->get((int)$item->_('productTypeId'));
-            $item->set('price_purchase', (float)$productTypeXml->price->vatExcluded);
-        endif;
-
-        if (
-            $item->_('price_purchase')
-            && $item->_('taxrate')
-            && !$item->_('price_sale')
-        ) :
-            /** @var TaxRate $taxrate */
-            $taxrate = TaxRate::findById($item->_('taxrate'));
-            $amount = ($item->_('price_purchase') * 1.4) * (1 + $taxrate->getTaxRate() / 100);
-            $item->set('price_sale', $amount);
-        endif;
-    }
-
     public function afterPublish(BaseCollectionInterface $item): void
     {
         $products = $this->repositories->product

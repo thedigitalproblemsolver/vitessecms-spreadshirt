@@ -27,11 +27,7 @@ class AdminproductControllerListener
         endif;
     }
 
-    public function beforeModelSave(
-        Event $event,
-        AdminproductController $controller,
-        Product $product
-    ): void
+    public function beforeModelSave(Event $event, AdminproductController $controller, Product $product): void
     {
         if (
             $controller->request->hasPost('renderSpreadShirt')

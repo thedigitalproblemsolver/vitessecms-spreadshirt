@@ -18,5 +18,6 @@
     }
   },
   "require": {
+    "vitessecms/shop": "~0.0.8"
   }
 }
