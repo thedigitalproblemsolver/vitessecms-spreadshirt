@@ -18,15 +18,6 @@ class Design extends AbstractCollection
      */
     public $designId;
 
-    public function beforeSave(): void
-    {
-        if (MongoUtil::isObjectId($this->_('baseDesign'))) :
-            Item::setFindPublished(false);
-            $baseDesign = Item::findById($this->_('baseDesign'));
-            $this->name = $baseDesign->name;
-        endif;
-    }
-
     public function getDesignId(): ?string
     {
         return $this->designId;

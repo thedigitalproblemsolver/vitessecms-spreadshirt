@@ -19,10 +19,7 @@ use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 
-class AdmindesignController
-    extends AbstractAdminController
-    implements ModuleInterface, AdminRepositoriesInterface
-{
+class AdmindesignController extends AbstractAdminController implements ModuleInterface, AdminRepositoriesInterface {
     public function onConstruct()
     {
         parent::onConstruct();
@@ -31,6 +28,7 @@ class AdmindesignController
         $this->classForm = DesignForm::class;
     }
 
+    //TODO move to listener
     public function afterPublish(BaseCollectionInterface $item): void
     {
         $products = $this->repositories->product

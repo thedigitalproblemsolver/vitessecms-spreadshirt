@@ -3,8 +3,10 @@
 namespace VitesseCms\Spreadshirt\Listeners;
 
 use VitesseCms\Spreadshirt\Controllers\AdminproductController;
+use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\Product;
 use Phalcon\Events\Event;
+use VitesseCms\Spreadshirt\Models\ProductType;
 
 class AdminproductControllerListener
 {
@@ -55,6 +57,16 @@ class AdminproductControllerListener
         $product->set('renderSpreadShirt', false);
         if ($controller->request->getPost('renderSpreadShirt') !== null) :
             unset($_POST['renderSpreadShirt']);
+        endif;
+
+        if (
+            !empty($product->productType)
+            && !empty($product->design)
+            && empty($product->_('name'))
+        ) :
+            $design = Design::findById($product->design);
+            $productType = ProductType::findById($product->productType);
+            $product->set('name', $productType->_('name') . ' - ' . $design->_('name'), true);
         endif;
     }
 }

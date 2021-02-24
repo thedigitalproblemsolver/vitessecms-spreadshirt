@@ -5,6 +5,7 @@ namespace VitesseCms\Spreadshirt\Listeners;
 use Phalcon\Events\Event;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\Utils\XmlUtil;
+use VitesseCms\Database\Utils\MongoUtil;
 use VitesseCms\Spreadshirt\Controllers\AdmindesignController;
 use VitesseCms\Spreadshirt\Models\Design;
 
@@ -35,6 +36,12 @@ class AdmindesignControllerListener
             if (\count($printTypeIds)) :
                 $design->set('printTypeIds', $printTypeIds);
             endif;
+        endif;
+
+        if (MongoUtil::isObjectId($design->_('baseDesign'))) :
+            Item::setFindPublished(false);
+            $baseDesign = Item::findById($design->_('baseDesign'));
+            $design->name = $baseDesign->name;
         endif;
     }
 }
