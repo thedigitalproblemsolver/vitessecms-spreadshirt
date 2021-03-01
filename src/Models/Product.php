@@ -46,19 +46,6 @@ class Product extends AbstractCollection
      */
     public $PrintTypeBaseColor;
 
-    public function beforeSave()
-    {
-        if (
-            !empty($this->productType)
-            && !empty($this->design)
-            && empty($this->_('name'))
-        ) :
-            $design = Design::findById($this->design);
-            $productType = ProductType::findById($this->productType);
-            $this->set('name', $productType->_('name') . ' - ' . $design->_('name'), true);
-        endif;
-    }
-
     public function getProductTypeId(): ?string
     {
         return $this->productType;

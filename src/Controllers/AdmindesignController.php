@@ -14,16 +14,12 @@ use VitesseCms\Form\Models\Attributes;
 use VitesseCms\Spreadshirt\Factories\DesignFactory;
 use VitesseCms\Spreadshirt\Factories\ProductFactory;
 use VitesseCms\Spreadshirt\Forms\DesignForm;
-use VitesseCms\Spreadshirt\Interfaces\AdminRepositoriesInterface;
 use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 
-class AdmindesignController
-    extends AbstractAdminController
-    implements ModuleInterface, AdminRepositoriesInterface
-{
+class AdmindesignController extends AbstractAdminController implements ModuleInterface, AdminRepositoriesInterface {
     public function onConstruct()
     {
         parent::onConstruct();
@@ -32,34 +28,7 @@ class AdmindesignController
         $this->classForm = DesignForm::class;
     }
 
-    public function beforeModelSave(AbstractCollection $item): void
-    {
-        if (!$item->_('designId')) :
-            Item::setFindPublished(false);
-            $baseDesign = Item::findById($item->_('baseDesign'));
-            $file = $this->config->get('uploadDir') . $baseDesign->_('spreadshirtRasterizedImage');
-            if (is_file($file)) :
-                $item->set('designId',
-                    $this->spreadshirt->design->createDesign($item->_('name'), $baseDesign->_('description')));
-                $this->spreadshirt->design->uploadDesign(
-                    $this->spreadshirt->design->getImageUploadUrl($item->_('designId')),
-                    $file
-                );
-            endif;
-        endif;
-
-        if ($item->_('designId') && empty($item->_('printTypeIds'))) :
-            $designXml = $this->spreadshirt->design->get($item->_('designId'));
-            $printTypeIds = [];
-            foreach ($designXml->printTypes->printType as $printType) :
-                $printTypeIds[] = (int)XmlUtil::getAttribute($printType, 'id');
-            endforeach;
-            if (\count($printTypeIds)) :
-                $item->set('printTypeIds', $printTypeIds);
-            endif;
-        endif;
-    }
-
+    //TODO move to listener
     public function afterPublish(BaseCollectionInterface $item): void
     {
         $products = $this->repositories->product

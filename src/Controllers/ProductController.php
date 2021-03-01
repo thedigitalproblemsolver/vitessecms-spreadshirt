@@ -82,7 +82,6 @@ class ProductController extends AbstractController implements ModuleInterface
                         $this->setVariations($item, $newItem, $productType);
                         $newItem->set('published', true);
                         $newItem->set('addtocart', true);
-                        $newItem->beforeSave();
                         $newItem->save();
                     } else {
                         die('Geen voorbeeld item gevonden');
