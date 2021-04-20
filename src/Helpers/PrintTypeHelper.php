@@ -4,7 +4,7 @@ namespace VitesseCms\Spreadshirt\Helpers;
 
 use VitesseCms\Spreadshirt\Factories\PrintTypeApiFactory;
 use VitesseCms\Spreadshirt\Models\PrintTypeApi;
-use \SimpleXMLElement;
+use SimpleXMLElement;
 
 class PrintTypeHelper extends AbstractSpreadShirtHelper
 {

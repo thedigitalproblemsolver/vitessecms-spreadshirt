@@ -9,12 +9,13 @@ use VitesseCms\Spreadshirt\Factories\ProductTypeAppearanceFactory;
 use VitesseCms\Spreadshirt\Interfaces\RepositoryInterface;
 use VitesseCms\Spreadshirt\Models\DesignApi;
 use VitesseCms\Spreadshirt\Models\Product;
-use \SimpleXMLElement;
+use SimpleXMLElement;
+use function count;
 
 class ProductHelper extends AbstractSpreadShirtHelper
 {
     /**
-     * @var \SimpleXMLElement
+     * @var SimpleXMLElement
      */
     protected $shop;
 
@@ -24,12 +25,12 @@ class ProductHelper extends AbstractSpreadShirtHelper
     protected $namespaces;
 
     /**
-     * @var \SimpleXMLElement
+     * @var SimpleXMLElement
      */
     protected $productType;
 
     /**
-     * @var \SimpleXMLElement
+     * @var SimpleXMLElement
      * @deprecated is replaced by designApi
      */
     protected $design;
@@ -52,7 +53,7 @@ class ProductHelper extends AbstractSpreadShirtHelper
         $result = curl_exec($ch);
         curl_close($ch);
 
-        $this->shop = new \SimpleXMLElement($result);
+        $this->shop = new SimpleXMLElement($result);
         $this->namespaces = $this->shop->getNamespaces(true);
         $this->errors = [];
     }
@@ -92,7 +93,7 @@ class ProductHelper extends AbstractSpreadShirtHelper
                 $resource = $productXml->resources->resource[0];
                 $attributes = $resource->attributes($this->getNamespaces()['xlink']);
                 $colorHex = $productTypeAppearance->getColors()[0];
-                if (\count($productTypeAppearance->getColors()) === 2) :
+                if (count($productTypeAppearance->getColors()) === 2) :
                     $colorHex = $productTypeAppearance->getColors()[1];
                 endif;
                 $appearances[] = [
@@ -115,7 +116,7 @@ class ProductHelper extends AbstractSpreadShirtHelper
         $result = curl_exec($ch);
         curl_close($ch);
 
-        $this->design = new \SimpleXMLElement($result);
+        $this->design = new SimpleXMLElement($result);
         $this->designApi = DesignApiFactory::createFromXml($this->design);
 
         return $this;
@@ -128,7 +129,7 @@ class ProductHelper extends AbstractSpreadShirtHelper
         $result = curl_exec($ch);
         curl_close($ch);
 
-        $this->productType = new \SimpleXMLElement($result);
+        $this->productType = new SimpleXMLElement($result);
 
         return $this;
     }
@@ -136,8 +137,8 @@ class ProductHelper extends AbstractSpreadShirtHelper
     public function prepareProductXml(
         Product $product,
         int $productTypeAppearanceId,
-        \SimpleXMLElement $printType
-    ): \SimpleXMLElement
+        SimpleXMLElement $printType
+    ): SimpleXMLElement
     {
         $printArea = null;
 
@@ -185,7 +186,7 @@ class ProductHelper extends AbstractSpreadShirtHelper
             ]
         );
 
-        return new \SimpleXMLElement($productXml);
+        return new SimpleXMLElement($productXml);
     }
 
     public function getSvgDimensions(SimpleXMLElement $printType, float $scale = 1.0): array
@@ -236,7 +237,7 @@ class ProductHelper extends AbstractSpreadShirtHelper
         return $dimensions;*/
     }
 
-    public function createProduct(\SimpleXMLElement $product): int
+    public function createProduct(SimpleXMLElement $product): int
     {
         $attributes = $this->shop->products->attributes($this->namespaces['xlink']);
 
@@ -244,7 +245,7 @@ class ProductHelper extends AbstractSpreadShirtHelper
         curl_setopt($ch, CURLOPT_POSTFIELDS, $product->asXML());
         $result = curl_exec($ch);
         curl_close($ch);
-        $productId = (int)XmlUtil::getAttribute(new \SimpleXMLElement($result), 'id');
+        $productId = (int)XmlUtil::getAttribute(new SimpleXMLElement($result), 'id');
 
         if ($productId) :
             return $productId;
@@ -255,13 +256,13 @@ class ProductHelper extends AbstractSpreadShirtHelper
         return 0;
     }
 
-    public function get(int $id): \SimpleXMLElement
+    public function get(int $id): SimpleXMLElement
     {
         $ch = $this->getCurlInstance($this->baseUrl . 'products/' . $id, 'GET');
         $result = curl_exec($ch);
         curl_close($ch);
 
-        return new \SimpleXMLElement($result);
+        return new SimpleXMLElement($result);
     }
 
     public function getNamespaces(): array

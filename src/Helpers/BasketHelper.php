@@ -2,6 +2,7 @@
 
 namespace VitesseCms\Spreadshirt\Helpers;
 
+use SimpleXMLElement;
 use VitesseCms\Core\Services\ViewService;
 use VitesseCms\Core\Utils\XmlUtil;
 
@@ -35,7 +36,7 @@ class BasketHelper extends AbstractSpreadShirtHelper
      */
     public function create(string $token): string
     {
-        $basketXml = new \SimpleXMLElement('<basket xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://api.spreadshirt.net">
+        $basketXml = new SimpleXMLElement('<basket xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://api.spreadshirt.net">
     <token>' . $token . '</token>
 </basket>');
         $ch = $this->getCurlInstance($this->basketUrl, 'POST', 'application/xml');
@@ -43,7 +44,7 @@ class BasketHelper extends AbstractSpreadShirtHelper
         $result = curl_exec($ch);
         curl_close($ch);
 
-        return XmlUtil::getAttribute(new \SimpleXMLElement($result), 'id');
+        return XmlUtil::getAttribute(new SimpleXMLElement($result), 'id');
     }
 
     /**
@@ -53,7 +54,7 @@ class BasketHelper extends AbstractSpreadShirtHelper
      * @param string $size
      * @param string $appearance
      *
-     * @return \SimpleXMLElement
+     * @return SimpleXMLElement
      */
     public function addItem(
         string $basketId,
@@ -62,9 +63,9 @@ class BasketHelper extends AbstractSpreadShirtHelper
         string $size,
         string $appearance
 
-    ): \SimpleXMLElement
+    ): SimpleXMLElement
     {
-        $itemXml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        $itemXml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <basketItem xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://api.spreadshirt.net">
            <quantity>' . $quantity . '</quantity>
            <element id="' . $productId . '" type="sprd:product" xlink:href="https://api.spreadshirt.net/api/v1/shops/' . $this->shopId . '/products/' . $productId . '">
@@ -80,7 +81,7 @@ class BasketHelper extends AbstractSpreadShirtHelper
         $result = curl_exec($ch);
         curl_close($ch);
 
-        return new \SimpleXMLElement($result);
+        return new SimpleXMLElement($result);
     }
 
     /**
@@ -90,7 +91,7 @@ class BasketHelper extends AbstractSpreadShirtHelper
      */
     public function getCheckoutUrl(string $basketId): string
     {
-        $result = new \SimpleXMLElement($this->getUrl($this->basketUrl . '/' . $basketId . '/checkout'));
+        $result = new SimpleXMLElement($this->getUrl($this->basketUrl . '/' . $basketId . '/checkout'));
         $namespaces = $result->getNamespaces(true);
 
         return (string)$result->attributes($namespaces['xlink']);

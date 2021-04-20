@@ -15,6 +15,7 @@ use VitesseCms\Spreadshirt\Forms\ProductTypeForm;
 use VitesseCms\Spreadshirt\Interfaces\AdminRepositoriesInterface;
 use VitesseCms\Spreadshirt\Models\ProductType;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
+use function count;
 
 class AdminproducttypeController
     extends AbstractAdminController
@@ -69,7 +70,7 @@ class AdminproducttypeController
             ProductType::setFindPublished(false);
             ProductType::setFindValue('productTypeId', $productTypeId);
             $productTypeItem = ProductType::findAll();
-            if (\count($productTypeItem) === 0) {
+            if (count($productTypeItem) === 0) {
                 ProductType::setFindPublished(false);
                 ProductType::setFindValue('productTypeId', (string)$productTypeId);
                 $productTypeItem = ProductType::findAll();
@@ -96,7 +97,7 @@ class AdminproducttypeController
                         ->set('appearances', $appearances)
                         ->save();
                 }
-            } elseif (\count($productTypeItem) === 1) {
+            } elseif (count($productTypeItem) === 1) {
                 $productTypeItem[0]
                     ->set('sizesMap', $sizesMap)
                     ->set('introtext', (string)$productType->shortDescription)

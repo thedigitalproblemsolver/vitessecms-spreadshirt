@@ -3,7 +3,7 @@
 namespace VitesseCms\Spreadshirt\Helpers;
 
 use VitesseCms\Core\Utils\XmlUtil;
-use \SimpleXMLElement;
+use SimpleXMLElement;
 
 class DesignHelper extends AbstractSpreadShirtHelper
 {

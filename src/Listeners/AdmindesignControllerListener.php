@@ -8,6 +8,7 @@ use VitesseCms\Core\Utils\XmlUtil;
 use VitesseCms\Database\Utils\MongoUtil;
 use VitesseCms\Spreadshirt\Controllers\AdmindesignController;
 use VitesseCms\Spreadshirt\Models\Design;
+use function count;
 
 class AdmindesignControllerListener
 {
@@ -33,7 +34,7 @@ class AdmindesignControllerListener
             foreach ($designXml->printTypes->printType as $printType) :
                 $printTypeIds[] = (int)XmlUtil::getAttribute($printType, 'id');
             endforeach;
-            if (\count($printTypeIds)) :
+            if (count($printTypeIds)) :
                 $design->set('printTypeIds', $printTypeIds);
             endif;
         endif;

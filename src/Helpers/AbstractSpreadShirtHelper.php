@@ -5,7 +5,7 @@ namespace VitesseCms\Spreadshirt\Helpers;
 use VitesseCms\Core\AbstractInjectable;
 use VitesseCms\Core\Services\ViewService;
 use VitesseCms\Core\Utils\XmlUtil;
-use \SimpleXMLElement;
+use SimpleXMLElement;
 
 abstract class AbstractSpreadShirtHelper extends AbstractInjectable
 {
