@@ -3,23 +3,17 @@
 namespace VitesseCms\Spreadshirt\Controllers;
 
 use VitesseCms\Admin\AbstractAdminController;
-use VitesseCms\Database\AbstractCollection;
-use VitesseCms\Database\Interfaces\BaseCollectionInterface;
 use VitesseCms\Core\Utils\XmlUtil;
-use VitesseCms\Database\Models\FindValue;
-use VitesseCms\Database\Models\FindValueIterator;
-use VitesseCms\Shop\Models\TaxRate;
-use VitesseCms\Spreadshirt\Enum\DatafieldEnum;
 use VitesseCms\Spreadshirt\Factories\ProductTypeFactory;
 use VitesseCms\Spreadshirt\Forms\ProductTypeForm;
-use VitesseCms\Spreadshirt\Interfaces\AdminRepositoriesInterface;
+use VitesseCms\Spreadshirt\Interfaces\RepositoriesInterface;
 use VitesseCms\Spreadshirt\Models\ProductType;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 use function count;
 
 class AdminproducttypeController
     extends AbstractAdminController
-    implements AdminRepositoriesInterface, ModuleInterface
+    implements RepositoriesInterface, ModuleInterface
 {
     public function onConstruct()
     {
@@ -111,35 +105,5 @@ class AdminproducttypeController
 
         $this->flash->setSucces('ProductTypes reloaded');
         $this->redirect();
-    }
-
-    public function afterPublish(BaseCollectionInterface $item): void
-    {
-        $products = $this->repositories->product
-            ->getByProductType((string)$item->getId(), false);
-
-        while ($products->valid()) :
-            $product = $products->current();
-            $ItemIsPublished = $item->isPublished();
-            $design = $this->repositories->design->getById($product->getDesignId());
-            if ($ItemIsPublished && ($design === null || !$design->isPublished())) :
-                $ItemIsPublished = false;
-            endif;
-
-            $shopItems = $this->repositories->item->findAll(
-                new FindValueIterator(
-                    [new FindValue('spreadShirtProductId', (string)$product->getId())]
-                ),
-                false
-            );
-            while ($shopItems->valid()) :
-                $shopItem = $shopItems->current();
-                $shopItem->setPublished($ItemIsPublished)->save();
-                $shopItems->next();
-            endwhile;
-
-            $product->setPublished($ItemIsPublished)->save();
-            $products->next();
-        endwhile;
     }
 }
