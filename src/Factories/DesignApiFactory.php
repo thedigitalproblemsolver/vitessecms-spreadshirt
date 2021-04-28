@@ -4,7 +4,7 @@ namespace VitesseCms\Spreadshirt\Factories;
 
 use VitesseCms\Core\Utils\XmlUtil;
 use VitesseCms\Spreadshirt\Models\DesignApi;
-use \SimpleXMLElement;
+use SimpleXMLElement;
 
 class DesignApiFactory
 {

@@ -2,7 +2,7 @@
 
 namespace VitesseCms\Spreadshirt\Models;
 
-use \ArrayIterator;
+use ArrayIterator;
 
 class ProductIterator extends ArrayIterator
 {

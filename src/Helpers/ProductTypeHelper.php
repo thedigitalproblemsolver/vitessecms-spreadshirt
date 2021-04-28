@@ -2,6 +2,8 @@
 
 namespace VitesseCms\Spreadshirt\Helpers;
 
+use SimpleXMLElement;
+
 /**
  * Class ProductTypeHelper
  */
@@ -10,37 +12,37 @@ class ProductTypeHelper extends AbstractSpreadShirtHelper
     /**
      * @param int $id
      *
-     * @return \SimpleXMLElement
+     * @return SimpleXMLElement
      */
-    public function get(int $id): \SimpleXMLElement
+    public function get(int $id): SimpleXMLElement
     {
         $ch = $this->getCurlInstance($this->baseUrl . 'productTypes/' . $id, 'GET');
         $result = curl_exec($ch);
         curl_close($ch);
 
-        return new \SimpleXMLElement($result);
+        return new SimpleXMLElement($result);
     }
 
     /**
-     * @return \SimpleXMLElement
+     * @return SimpleXMLElement
      */
-    public function getAll(): \SimpleXMLElement
+    public function getAll(): SimpleXMLElement
     {
         $ch = $this->getCurlInstance($this->baseUrl . 'productTypes?fullData=true&limit=200', 'GET');
         $result = curl_exec($ch);
         curl_close($ch);
 
-        return new \SimpleXMLElement($result);
+        return new SimpleXMLElement($result);
     }
 
     /**
-     * @param \SimpleXMLElement $productType
+     * @param SimpleXMLElement $productType
      * @param array $namespaces
      *
      * @return string
      */
     public function buildSizeTable(
-        \SimpleXMLElement $productType,
+        SimpleXMLElement $productType,
         array $namespaces
     ): string
     {

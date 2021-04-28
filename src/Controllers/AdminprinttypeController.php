@@ -2,6 +2,7 @@
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
+use Phalcon\Mvc\Collection\Exception;
 use VitesseCms\Admin\AbstractAdminController;
 use VitesseCms\Spreadshirt\Forms\PrintTypeForm;
 use VitesseCms\Spreadshirt\Models\PrintType;
@@ -13,7 +14,7 @@ class AdminprinttypeController extends AbstractAdminController
 {
     /**
      * construct
-     * @throws \Phalcon\Mvc\Collection\Exception
+     * @throws Exception
      */
     public function onConstruct()
     {

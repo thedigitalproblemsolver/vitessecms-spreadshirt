@@ -12,6 +12,9 @@ use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\PrintType;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
+use function count;
+use function in_array;
+use function is_array;
 
 class ProductForm extends AbstractForm implements ModuleInterface
 {
@@ -46,7 +49,7 @@ class ProductForm extends AbstractForm implements ModuleInterface
             foreach ($productTypeXml->appearances->appearance as $appearance) :
                 foreach ($appearance->printTypes->printType as $printType) :
                     $printTypeId = (int)XmlUtil::getAttribute($printType, 'id');
-                    if (!\in_array($printTypeId, $printTypeIds, true)) :
+                    if (!in_array($printTypeId, $printTypeIds, true)) :
                         $printTypeIds[] = $printTypeId;
                     endif;
                 endforeach;
@@ -131,13 +134,13 @@ class ProductForm extends AbstractForm implements ModuleInterface
                 $this->addHidden('PrintTypeBaseColor');
             endif;
 
-            if (\is_array($item->_('appearances'))) :
+            if (is_array($item->_('appearances'))) :
                 $this->addHtml('<div class="row">');
                 foreach ((array)$item->_('appearances') as $appearance) :
                     $checked = true;
                     if (
-                        \is_array($item->_('selectedVariations'))
-                        && \count($item->_('selectedVariations')) > 0
+                        is_array($item->_('selectedVariations'))
+                        && count($item->_('selectedVariations')) > 0
                         && !isset($item->_('selectedVariations')[$appearance['color']])
                     ) :
                         $checked = false;

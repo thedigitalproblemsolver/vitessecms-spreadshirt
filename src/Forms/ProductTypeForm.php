@@ -2,6 +2,7 @@
 
 namespace VitesseCms\Spreadshirt\Forms;
 
+use Phalcon\Mvc\Collection\Exception;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\Enum\SystemEnum;
 use VitesseCms\Core\Helpers\ItemHelper;
@@ -22,7 +23,7 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
     /**
      * @param ProductType $item
      *
-     * @throws \Phalcon\Mvc\Collection\Exception
+     * @throws Exception
      */
     public function initialize(ProductType $item): void
     {

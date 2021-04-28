@@ -2,6 +2,7 @@
 
 namespace VitesseCms\Spreadshirt\Forms;
 
+use Phalcon\Mvc\Collection\Exception;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\Interfaces\InjectableInterface;
 use VitesseCms\Form\AbstractForm;
@@ -15,7 +16,7 @@ use VitesseCms\Media\Enums\AssetsEnum;
 class PrintTypeForm extends AbstractForm implements InjectableInterface
 {
     /**
-     * @throws \Phalcon\Mvc\Collection\Exception
+     * @throws Exception
      */
     public function initialize(): void
     {
