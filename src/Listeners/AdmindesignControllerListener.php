@@ -5,6 +5,9 @@ namespace VitesseCms\Spreadshirt\Listeners;
 use Phalcon\Events\Event;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\Utils\XmlUtil;
+use VitesseCms\Database\Interfaces\BaseCollectionInterface;
+use VitesseCms\Database\Models\FindValue;
+use VitesseCms\Database\Models\FindValueIterator;
 use VitesseCms\Database\Utils\MongoUtil;
 use VitesseCms\Spreadshirt\Controllers\AdmindesignController;
 use VitesseCms\Spreadshirt\Models\Design;
@@ -44,5 +47,36 @@ class AdmindesignControllerListener
             $baseDesign = Item::findById($design->_('baseDesign'));
             $design->name = $baseDesign->name;
         endif;
+    }
+
+    public function afterPublish(Event $event, AdmindesignController $controller, Design $design): void
+    {
+        $products = $controller->repositories->product->getByDesign((string)$design->getId(), false);
+
+        while ($products->valid()) :
+            $product = $products->current();
+            $ItemIsPublished = $design->isPublished();
+            $productType = $controller->repositories->productType->getById(
+                $product->getProductTypeId(), false
+            );
+            if ($ItemIsPublished && ($productType === null || !$productType->isPublished())) :
+                $ItemIsPublished = false;
+            endif;
+
+            $shopItems = $controller->repositories->item->findAll(
+                new FindValueIterator(
+                    [new FindValue('spreadShirtProductId', (string)$product->getId())]
+                ),
+                false
+            );
+            while ($shopItems->valid()) :
+                $shopItem = $shopItems->current();
+                $shopItem->setPublished($ItemIsPublished)->save();
+                $shopItems->next();
+            endwhile;
+
+            $product->setPublished($ItemIsPublished)->save();
+            $products->next();
+        endwhile;
     }
 }
