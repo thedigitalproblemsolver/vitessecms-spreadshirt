@@ -2,11 +2,8 @@
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
-use VitesseCms\Content\Models\Item;
 use VitesseCms\Admin\AbstractAdminController;
-use VitesseCms\Database\AbstractCollection;
 use VitesseCms\Core\Utils\XmlUtil;
-use VitesseCms\Database\Interfaces\BaseCollectionInterface;
 use VitesseCms\Database\Models\FindValue;
 use VitesseCms\Database\Models\FindValueIterator;
 use VitesseCms\Form\Forms\BaseForm;
@@ -14,51 +11,19 @@ use VitesseCms\Form\Models\Attributes;
 use VitesseCms\Spreadshirt\Factories\DesignFactory;
 use VitesseCms\Spreadshirt\Factories\ProductFactory;
 use VitesseCms\Spreadshirt\Forms\DesignForm;
+use VitesseCms\Spreadshirt\Interfaces\RepositoriesInterface;
 use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 
-class AdmindesignController extends AbstractAdminController implements ModuleInterface, AdminRepositoriesInterface {
+class AdmindesignController extends AbstractAdminController implements ModuleInterface, RepositoriesInterface {
     public function onConstruct()
     {
         parent::onConstruct();
 
         $this->class = Design::class;
         $this->classForm = DesignForm::class;
-    }
-
-    //TODO move to listener
-    public function afterPublish(BaseCollectionInterface $item): void
-    {
-        $products = $this->repositories->product
-            ->getByDesign((string)$item->getId(), false);
-
-        while ($products->valid()) :
-            $product = $products->current();
-            $ItemIsPublished = $item->isPublished();
-            $productType = $this->repositories->productType->getById(
-                $product->getProductTypeId(), false
-            );
-            if ($ItemIsPublished && ($productType === null || !$productType->isPublished())) :
-                $ItemIsPublished = false;
-            endif;
-
-            $shopItems = $this->repositories->item->findAll(
-                new FindValueIterator(
-                    [new FindValue('spreadShirtProductId', (string)$product->getId())]
-                ),
-                false
-            );
-            while ($shopItems->valid()) :
-                $shopItem = $shopItems->current();
-                $shopItem->setPublished($ItemIsPublished)->save();
-                $shopItems->next();
-            endwhile;
-
-            $product->setPublished($ItemIsPublished)->save();
-            $products->next();
-        endwhile;
     }
 
     public function generateProductsAction(string $designId): void
