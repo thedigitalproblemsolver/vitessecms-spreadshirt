@@ -8,7 +8,7 @@ use VitesseCms\Database\AbstractCollection;
 use VitesseCms\Core\AbstractController;
 use VitesseCms\Setting\Models\Setting;
 use VitesseCms\Core\Utils\FileUtil;
-use VitesseCms\Datafield\Enums\FieldSizeAndColorEnum;
+use VitesseCms\Shop\Enums\SizeAndColorEnum;
 use VitesseCms\Shop\Models\TaxRate;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 use VitesseCms\Spreadshirt\Models\Design;
@@ -119,7 +119,7 @@ class ProductController extends AbstractController implements ModuleInterface
                 endif;
 
                 foreach ($sizes as $size) :
-                    if (isset(FieldSizeAndColorEnum::sizes[$size])) :
+                    if (isset(SizeAndColorEnum::sizes[$size])) :
                         if (strtolower($size) === 'one size') :
                             $size = 'ONE SIZE';
                         endif;
