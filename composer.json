@@ -18,6 +18,8 @@
     }
   },
   "require": {
-    "vitessecms/shop": "~0.2.0"
+    "vitessecms/shop": "~0.2.0",
+    "vitessecms/core": "~0.2.5",
+    "vitessecms/admin": "~0.2.3"
   }
 }
