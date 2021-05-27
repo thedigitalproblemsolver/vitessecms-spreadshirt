@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace VitesseCms\Spreadshirt\Listeners;
+namespace VitesseCms\Spreadshirt\Listeners\Admin;
 
 use VitesseCms\Database\Models\FindValue;
 use VitesseCms\Database\Models\FindValueIterator;
