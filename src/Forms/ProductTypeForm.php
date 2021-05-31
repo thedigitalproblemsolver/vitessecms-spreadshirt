@@ -11,7 +11,6 @@ use VitesseCms\Core\Utils\XmlUtil;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
 use VitesseCms\Form\Models\Attributes;
-use VitesseCms\Media\Enums\AssetsEnum;
 use VitesseCms\Shop\Models\TaxRate;
 use VitesseCms\Spreadshirt\Factories\PrintTypeFactory;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
@@ -107,12 +106,12 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
             ->addDropdown(
                 'Create product as Child of',
                 'productParentItem',
-                (new Attributes())->setInputClass(AssetsEnum::SELECT2)
+                (new Attributes())->setInputClass('select2')
                     ->setOptions(ElementHelper::arrayToSelectOptions($itemOptions)))
             ->addDropdown(
                 'Manufacturer',
                 'manufacturer',
-                (new Attributes())->setInputClass(AssetsEnum::SELECT2)
+                (new Attributes())->setInputClass('select2')
                     ->setOptions(ElementHelper::arrayToSelectOptions($productTypeItems, [], true)))
             ->addNumber('Purchase price ex VAT', 'price_purchase', (new Attributes())->setStep(0.01))
             ->addNumber('Sale Price incl. VAT', 'price_sale', (new Attributes())->setStep(0.01))
