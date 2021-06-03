@@ -8,7 +8,6 @@ use VitesseCms\Core\Interfaces\InjectableInterface;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
 use VitesseCms\Form\Models\Attributes;
-use VitesseCms\Media\Enums\AssetsEnum;
 
 /**
  * Class PrintTypeForm
@@ -30,7 +29,7 @@ class PrintTypeForm extends AbstractForm implements InjectableInterface
             ->addDropdown(
                 'Productiontechnique',
                 'productionTechnique',
-                (new Attributes())->setInputClass(AssetsEnum::SELECT2)
+                (new Attributes())->setInputClass('select2')
                     ->setOptions(ElementHelper::arrayToSelectOptions($productionTechniques)))
             ->addSubmitButton('%CORE_SAVE%');
     }
