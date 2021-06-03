@@ -7,7 +7,6 @@ use VitesseCms\Core\Utils\XmlUtil;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
 use VitesseCms\Form\Models\Attributes;
-use VitesseCms\Media\Enums\AssetsEnum;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 use VitesseCms\Spreadshirt\Models\Design;
 use Phalcon\Tag;
@@ -61,7 +60,7 @@ class DesignForm extends AbstractForm implements ModuleInterface
                 'designCategories',
                 (new Attributes())->setRequired()
                     ->setMultiple()
-                    ->setInputClass(AssetsEnum::SELECT2)
+                    ->setInputClass('select2')
                     ->setOptions(ElementHelper::arrayToSelectOptions($designCategoryOptions))
             )
             ->addNumber('Design price on marketplace', 'designPrice')
