@@ -19,7 +19,7 @@
   },
   "require": {
     "vitessecms/shop": "~0.2.0",
-    "vitessecms/core": "~0.2.9",
+    "vitessecms/core": "~0.2.10",
     "vitessecms/admin": "~0.2.4"
   }
 }
