@@ -2,9 +2,7 @@
 
 namespace VitesseCms\Spreadshirt\Models;
 
-use VitesseCms\Content\Models\Item;
 use VitesseCms\Database\AbstractCollection;
-use VitesseCms\Database\Utils\MongoUtil;
 
 class Design extends AbstractCollection
 {
