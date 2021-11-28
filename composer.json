@@ -18,8 +18,10 @@
     }
   },
   "require": {
+    "ext-simplexml": "*",
     "vitessecms/shop": "~0.2.0",
-    "vitessecms/core": "~0.2.14",
-    "vitessecms/admin": "~0.2.7"
+    "vitessecms/core": "~0.2.15",
+    "vitessecms/admin": "~0.2.8",
+    "vitessecms/mustache": "~0.2.3"
   }
 }

@@ -6,6 +6,8 @@ use VitesseCms\Core\AbstractInjectable;
 use VitesseCms\Core\Services\ViewService;
 use VitesseCms\Core\Utils\XmlUtil;
 use SimpleXMLElement;
+use VitesseCms\Mustache\DTO\RenderTemplateDTO;
+use VitesseCms\Mustache\Enum\ViewEnum;
 
 abstract class AbstractSpreadShirtHelper extends AbstractInjectable
 {
@@ -124,10 +126,9 @@ abstract class AbstractSpreadShirtHelper extends AbstractInjectable
     protected function login(): void
     {
         if ($this->sessionId === null) :
-            $login = simplexml_load_string($this->view->renderModuleTemplate(
-                'spreadshirt',
+            $login = $this->eventsManager->fire(ViewEnum::RENDER_TEMPLATE_EVENT, new RenderTemplateDTO(
                 'api_login',
-                'xml',
+                $this->router->getModuleName() . '/src/Resources/xml/',
                 [
                     'apiLogin' => $this->apiLogin,
                     'apiPassword' => $this->apiPassword,
