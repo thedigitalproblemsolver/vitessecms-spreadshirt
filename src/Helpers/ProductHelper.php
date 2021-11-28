@@ -4,6 +4,8 @@ namespace VitesseCms\Spreadshirt\Helpers;
 
 use VitesseCms\Core\Services\ViewService;
 use VitesseCms\Core\Utils\XmlUtil;
+use VitesseCms\Mustache\DTO\RenderTemplateDTO;
+use VitesseCms\Mustache\Enum\ViewEnum;
 use VitesseCms\Spreadshirt\Factories\DesignApiFactory;
 use VitesseCms\Spreadshirt\Factories\ProductTypeAppearanceFactory;
 use VitesseCms\Spreadshirt\Interfaces\RepositoryInterface;
@@ -167,10 +169,9 @@ class ProductHelper extends AbstractSpreadShirtHelper
                 $dimensions = $this->getPngDimensions($printType, $product->getScale());
         endswitch;
 
-        $productXml = $this->view->renderModuleTemplate(
-            'spreadshirt',
+        $productXml = $this->eventsManager->fire(ViewEnum::RENDER_TEMPLATE_EVENT, new RenderTemplateDTO(
             'create_product',
-            'xml/',
+            $this->router->getModuleName() . '/src/Resources/xml/',
             [
                 'printColorRGBs' => $printColorRGBs,
                 'productTypeId' => XmlUtil::getAttribute($this->productType, 'id'),
@@ -184,7 +185,7 @@ class ProductHelper extends AbstractSpreadShirtHelper
                 'designId' => $this->designApi->getId(),
                 'printColorIds' => $printColorIds,
             ]
-        );
+        ));
 
         return new SimpleXMLElement($productXml);
     }
