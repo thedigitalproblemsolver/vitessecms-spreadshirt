@@ -22,6 +22,6 @@
     "vitessecms/shop": "~0.2.0",
     "vitessecms/core": "~0.2.20",
     "vitessecms/admin": "~0.2.9",
-    "vitessecms/mustache": "~0.2.4"
+    "vitessecms/mustache": "~0.2.6"
   }
 }
