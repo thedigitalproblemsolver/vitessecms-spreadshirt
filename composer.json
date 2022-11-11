@@ -20,7 +20,7 @@
   "require": {
     "ext-simplexml": "*",
     "vitessecms/shop": "~0.2.0",
-    "vitessecms/core": "~0.2.23",
+    "vitessecms/core": "~0.2.24",
     "vitessecms/admin": "~0.2.9",
     "vitessecms/mustache": "~0.2.9"
   }
