@@ -23,9 +23,9 @@
   },
   "require": {
     "ext-simplexml": "*",
-    "vitessecms/shop": "~0.2.0",
-    "vitessecms/core": "~0.2.25",
-    "vitessecms/admin": "~0.2.9",
-    "vitessecms/mustache": "~0.2.9"
+    "vitessecms/setting": "~0.3.0"": "~0.3.0",
+    "vitessecms/core": "~0.3.0",
+    "vitessecms/admin": "~0.3.0",
+    "vitessecms/mustache": "~0.3.0"
   }
 }
