@@ -9,7 +9,7 @@ use VitesseCms\Spreadshirt\Repositories\ProductRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductTypeRepository;
 use VitesseCms\Spreadshirt\Repositories\RepositoryCollection;
 use VitesseCms\Spreadshirt\Services\SpreadshirtService;
-use Phalcon\DiInterface;
+use Phalcon\Di\DiInterface;
 
 class Module extends AbstractModule
 {

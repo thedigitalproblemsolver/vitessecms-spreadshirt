@@ -2,10 +2,14 @@
   "name": "vitessecms/spreadshirt",
   "type": "library",
   "description": "Spreadshirt module for VitesseCms",
-  "keywords": ["php","phalcon","vitessecms"],
+  "keywords": [
+    "php",
+    "phalcon",
+    "vitessecms"
+  ],
   "homepage": "https://github.com/thedigitalproblemsolver/VitesseCMS",
   "license": "GPL-2.0-or-later",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "authors": [
     {
       "name": "Jasper Jaklofsky",
@@ -19,9 +23,9 @@
   },
   "require": {
     "ext-simplexml": "*",
-    "vitessecms/shop": "~0.2.0",
-    "vitessecms/core": "~0.2.15",
-    "vitessecms/admin": "~0.2.8",
-    "vitessecms/mustache": "~0.2.3"
+    "vitessecms/setting": "~0.3.0",
+    "vitessecms/core": "~0.3.0",
+    "vitessecms/admin": "~0.3.0",
+    "vitessecms/mustache": "~0.3.0"
   }
 }

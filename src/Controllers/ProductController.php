@@ -4,11 +4,11 @@ namespace VitesseCms\Spreadshirt\Controllers;
 
 use VitesseCms\Content\Factories\ItemFactory;
 use VitesseCms\Content\Models\Item;
-use VitesseCms\Database\AbstractCollection;
 use VitesseCms\Core\AbstractController;
-use VitesseCms\Setting\Models\Setting;
 use VitesseCms\Core\Utils\FileUtil;
-use VitesseCms\Shop\Enums\SizeAndColorEnum;
+use VitesseCms\Database\AbstractCollection;
+use VitesseCms\Setting\Models\Setting;
+use VitesseCms\Shop\Enum\SizeAndColorEnum;
 use VitesseCms\Shop\Models\TaxRate;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 use VitesseCms\Spreadshirt\Models\Design;
@@ -94,7 +94,7 @@ class ProductController extends AbstractController implements ModuleInterface
     protected function setVariations(
         AbstractCollection $item,
         AbstractCollection $newItem,
-        ProductType $productType
+        ProductType        $productType
     ): void
     {
         $productTypeXml = $this->spreadshirt->productType->get((int)$productType->_('productTypeId'));

@@ -5,7 +5,6 @@ namespace VitesseCms\Spreadshirt\Listeners\Admin;
 use Phalcon\Events\Event;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\Utils\XmlUtil;
-use VitesseCms\Database\Interfaces\BaseCollectionInterface;
 use VitesseCms\Database\Models\FindValue;
 use VitesseCms\Database\Models\FindValueIterator;
 use VitesseCms\Database\Utils\MongoUtil;
