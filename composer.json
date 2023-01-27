@@ -26,6 +26,6 @@
     "vitessecms/setting": "~0.3.0",
     "vitessecms/core": "~0.3.6",
     "vitessecms/admin": "~0.3.0",
-    "vitessecms/mustache": "~0.3.0"
+    "vitessecms/mustache": "~0.3.1"
   }
 }
