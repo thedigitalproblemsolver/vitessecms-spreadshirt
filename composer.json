@@ -24,7 +24,7 @@
   "require": {
     "ext-simplexml": "*",
     "vitessecms/setting": "~0.3.2",
-    "vitessecms/core": "~0.4.4",
+    "vitessecms/core": "~0.4.5",
     "vitessecms/admin": "~0.3.2",
     "vitessecms/mustache": "~0.4.3"
   }
