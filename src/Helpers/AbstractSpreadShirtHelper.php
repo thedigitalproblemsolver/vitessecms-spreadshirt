@@ -1,78 +1,47 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Helpers;
 
-use VitesseCms\Core\AbstractInjectable;
+use Phalcon\Events\Manager;
+use SimpleXMLElement;
+use stdClass;
+use VitesseCms\Core\Enum\ViewEnum;
 use VitesseCms\Core\Services\ViewService;
 use VitesseCms\Core\Utils\XmlUtil;
-use SimpleXMLElement;
 use VitesseCms\Mustache\DTO\RenderTemplateDTO;
-use VitesseCms\Mustache\Enum\ViewEnum;
+use VitesseCms\Setting\Enum\SettingEnum;
+use VitesseCms\Setting\Services\SettingService;
 
-abstract class AbstractSpreadShirtHelper extends AbstractInjectable
+abstract class AbstractSpreadShirtHelper
 {
-    /**
-     * @var string
-     */
-    protected $apiKey;
+    protected string $apiKey;
+    protected string $apiSecret;
+    protected string $shopId;
+    protected string $userId;
+    protected string $baseUrl;
+    protected string $userUrl;
+    protected string $apiLogin;
+    protected string $apiPassword;
+    protected ?string $sessionId;
+    protected ViewService $viewService;
+    protected SettingService $settingService;
 
-    /**
-     * @var string
-     */
-    protected $apiSecret;
-
-    /**
-     * @var string
-     */
-    protected $shopId;
-
-    /**
-     * @var string
-     */
-    protected $userId;
-
-    /**
-     * @var string
-     */
-    protected $baseUrl;
-
-    /**
-     * @var string
-     */
-    protected $userUrl;
-
-    /**
-     * @var string
-     */
-    protected $apiLogin;
-
-    /**
-     * @var string
-     */
-    protected $apiPassword;
-
-    /**
-     * @var ?string
-     */
-    protected $sessionId;
-
-    /**
-     * @var ViewService
-     */
-    protected $view;
-
-    public function __construct(ViewService $view)
+    public function __construct(protected readonly Manager $eventsManager)
     {
-        $this->apiKey = $this->setting->get('SPREADSHIRT_API_KEY');
-        $this->shopId = $this->setting->get('SPREADSHIRT_SHOP_ID');
-        $this->userId = $this->setting->get('SPREADSHIRT_USER_ID');
-        $this->apiLogin = $this->setting->get('SPREADSHIRT_API_LOGIN');
-        $this->apiPassword = $this->setting->get('SPREADSHIRT_API_PASSWORD');
-        $this->apiSecret = $this->setting->get('SPREADSHIRT_API_SECRET');
+        $this->viewService = $this->eventsManager->fire(ViewEnum::ATTACH_SERVICE_LISTENER, new stdClass());
+        $this->settingService = $this->eventsManager->fire(SettingEnum::ATTACH_SERVICE_LISTENER->value, new stdClass());
+
+        $this->apiKey = $this->settingService->getString('SPREADSHIRT_API_KEY');
+        $this->shopId = $this->settingService->getString('SPREADSHIRT_SHOP_ID');
+        $this->userId = $this->settingService->getString('SPREADSHIRT_USER_ID');
+        $this->apiLogin = $this->settingService->getString('SPREADSHIRT_API_LOGIN');
+        $this->apiPassword = $this->settingService->getString('SPREADSHIRT_API_PASSWORD');
+        $this->apiSecret = $this->settingService->getString('SPREADSHIRT_API_SECRET');
         $this->baseUrl = 'https://api.spreadshirt.net/api/v1/shops/' . $this->shopId . '/';
         $this->userUrl = 'https://api.spreadshirt.net/api/v1/users/' . $this->userId . '/';
         $this->sessionId = null;
-        $this->view = $view;
     }
 
     public function getUrl(string $url, string $method = 'GET'): string
@@ -89,8 +58,7 @@ abstract class AbstractSpreadShirtHelper extends AbstractInjectable
         string $method,
         ?string $contentType = null,
         bool $login = false
-    )
-    {
+    ) {
         $headers = [
             $this->createSprdAuthHeader($method, $url, $login),
             'User-Agent: CraftBeerShirts/1.0 (https://craftbeermerchandise.com; info@craftbeermerchandise.com)',
@@ -126,14 +94,17 @@ abstract class AbstractSpreadShirtHelper extends AbstractInjectable
     protected function login(): void
     {
         if ($this->sessionId === null) :
-            $login = $this->eventsManager->fire(ViewEnum::RENDER_TEMPLATE_EVENT, new RenderTemplateDTO(
-                'api_login',
-                $this->router->getModuleName() . '/src/Resources/xml/',
-                [
-                    'apiLogin' => $this->apiLogin,
-                    'apiPassword' => $this->apiPassword,
-                ]
-            ));
+            $login = $this->eventsManager->fire(
+                ViewEnum::RENDER_TEMPLATE_EVENT,
+                new RenderTemplateDTO(
+                    'api_login',
+                    $this->router->getModuleName() . '/src/Resources/xml/',
+                    [
+                        'apiLogin' => $this->apiLogin,
+                        'apiPassword' => $this->apiPassword,
+                    ]
+                )
+            );
 
             $ch = curl_init('http://api.spreadshirt.net/api/v1/sessions');
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/xml']);

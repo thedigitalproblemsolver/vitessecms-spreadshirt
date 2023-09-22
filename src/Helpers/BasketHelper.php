@@ -2,8 +2,8 @@
 
 namespace VitesseCms\Spreadshirt\Helpers;
 
+use Phalcon\Events\Manager;
 use SimpleXMLElement;
-use VitesseCms\Core\Services\ViewService;
 use VitesseCms\Core\Utils\XmlUtil;
 
 /**
@@ -11,20 +11,11 @@ use VitesseCms\Core\Utils\XmlUtil;
  */
 class BasketHelper extends AbstractSpreadShirtHelper
 {
+    protected string $basketUrl;
 
-    /**
-     * @var $basketUrl
-     */
-    protected $basketUrl;
-
-    /**
-     * BasketHelper constructor.
-     *
-     * @param ViewService $view
-     */
-    public function __construct(ViewService $view)
+    public function __construct(Manager $eventsManager)
     {
-        parent::__construct($view);
+        parent::__construct($eventsManager);
 
         $this->basketUrl = 'https://api.spreadshirt.net/api/v1/baskets';
     }
@@ -36,9 +27,11 @@ class BasketHelper extends AbstractSpreadShirtHelper
      */
     public function create(string $token): string
     {
-        $basketXml = new SimpleXMLElement('<basket xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://api.spreadshirt.net">
+        $basketXml = new SimpleXMLElement(
+            '<basket xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://api.spreadshirt.net">
     <token>' . $token . '</token>
-</basket>');
+</basket>'
+        );
         $ch = $this->getCurlInstance($this->basketUrl, 'POST', 'application/xml');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $basketXml->asXML());
         $result = curl_exec($ch);
@@ -63,9 +56,9 @@ class BasketHelper extends AbstractSpreadShirtHelper
         string $size,
         string $appearance
 
-    ): SimpleXMLElement
-    {
-        $itemXml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    ): SimpleXMLElement {
+        $itemXml = new SimpleXMLElement(
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <basketItem xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://api.spreadshirt.net">
            <quantity>' . $quantity . '</quantity>
            <element id="' . $productId . '" type="sprd:product" xlink:href="https://api.spreadshirt.net/api/v1/shops/' . $this->shopId . '/products/' . $productId . '">
@@ -74,7 +67,8 @@ class BasketHelper extends AbstractSpreadShirtHelper
                  <property key="size">' . $size . '</property>
               </properties>
            </element>
-        </basketItem>');
+        </basketItem>'
+        );
 
         $ch = $this->getCurlInstance($this->basketUrl . '/' . $basketId . '/items', 'POST', 'application/xml');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $itemXml->asXML());
