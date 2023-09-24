@@ -15,8 +15,6 @@ use VitesseCms\Admin\Traits\TraitAdminModelList;
 use VitesseCms\Admin\Traits\TraitAdminModelPublishable;
 use VitesseCms\Core\AbstractControllerAdmin;
 use VitesseCms\Database\AbstractCollection;
-use VitesseCms\Database\Models\FindOrder;
-use VitesseCms\Database\Models\FindOrderIterator;
 use VitesseCms\Database\Models\FindValueIterator;
 use VitesseCms\Spreadshirt\Enums\ProductTypeEnum;
 use VitesseCms\Spreadshirt\Factories\ProductTypeFactory;
@@ -57,9 +55,7 @@ final class AdminproducttypeController extends AbstractControllerAdmin implement
     {
         return $this->productTypeRepository->findAll(
             $findValueIterator,
-            false,
-            99999,
-            new FindOrderIterator([new FindOrder('createdAt', -1)])
+            false
         );
     }
 
@@ -133,8 +129,8 @@ final class AdminproducttypeController extends AbstractControllerAdmin implement
             $getProductTypeDTOs->next();
         }
 
-        $this->flash->setSucces('ProductTypes reloaded');
+        $this->flashService->setSucces('ProductTypes reloaded');
 
-        $this->redirect();
+        $this->redirect($this->request->getHTTPReferer());
     }
 }
