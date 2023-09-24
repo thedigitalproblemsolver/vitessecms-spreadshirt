@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace VitesseCms\Spreadshirt\Repositories;
 
 use VitesseCms\Database\Models\FindValueIterator;
-use VitesseCms\Spreadshirt\Models\ProductType;
-use VitesseCms\Spreadshirt\Models\ProductTypeIterator;
+use VitesseCms\Spreadshirt\Models\PrintType;
+use VitesseCms\Spreadshirt\Models\PrintTypeIterator;
 
-final class ProductTypeRepository
+final class PrintTypeRepository
 {
     public function getById(
         string $id,
         bool $hideUnpublished = true
-    ): ?ProductType {
-        ProductType::setFindPublished($hideUnpublished);
-        /** @var ProductType $productType */
-        $productType = ProductType::findById($id);
-        if (is_object($productType)):
-            return $productType;
+    ): ?PrintType {
+        PrintType::setFindPublished($hideUnpublished);
+        /** @var PrintType $printType */
+        $printType = PrintType::findById($id);
+        if (is_object($printType)):
+            return $printType;
         endif;
 
         return null;
@@ -27,12 +27,12 @@ final class ProductTypeRepository
     public function findAll(
         ?FindValueIterator $findValues = null,
         bool $hideUnpublished = true
-    ): ProductTypeIterator {
-        ProductType::setFindPublished($hideUnpublished);
-        ProductType::addFindOrder('name');
+    ): PrintTypeIterator {
+        PrintType::setFindPublished($hideUnpublished);
+        PrintType::addFindOrder('name');
         $this->parsefindValues($findValues);
 
-        return new ProductTypeIterator(ProductType::findAll());
+        return new PrintTypeIterator(PrintType::findAll());
     }
 
     protected function parsefindValues(?FindValueIterator $findValues = null): void
@@ -40,7 +40,7 @@ final class ProductTypeRepository
         if ($findValues !== null) :
             while ($findValues->valid()) :
                 $findValue = $findValues->current();
-                ProductType::setFindValue(
+                PrintType::setFindValue(
                     $findValue->getKey(),
                     $findValue->getValue(),
                     $findValue->getType()

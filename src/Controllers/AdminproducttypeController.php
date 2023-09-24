@@ -24,7 +24,7 @@ use VitesseCms\Spreadshirt\Forms\ProductTypeForm;
 use VitesseCms\Spreadshirt\Models\ProductType;
 use VitesseCms\Spreadshirt\Repositories\ProductTypeRepository;
 
-class AdminproducttypeController extends AbstractControllerAdmin implements
+final class AdminproducttypeController extends AbstractControllerAdmin implements
     AdminModelPublishableInterface,
     AdminModelEditableInterface,
     AdminModelListInterface

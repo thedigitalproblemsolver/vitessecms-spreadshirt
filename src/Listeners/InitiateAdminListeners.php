@@ -7,15 +7,20 @@ namespace VitesseCms\Spreadshirt\Listeners;
 use VitesseCms\Core\Interfaces\InitiateListenersInterface;
 use VitesseCms\Core\Interfaces\InjectableInterface;
 use VitesseCms\Spreadshirt\Controllers\AdmindesignController;
+use VitesseCms\Spreadshirt\Controllers\AdminprinttypeController;
 use VitesseCms\Spreadshirt\Controllers\AdminproductController;
 use VitesseCms\Spreadshirt\Controllers\AdminproducttypeController;
+use VitesseCms\Spreadshirt\Enums\PrintTypeEnum;
 use VitesseCms\Spreadshirt\Enums\ProductTypeEnum;
 use VitesseCms\Spreadshirt\Enums\SettingEnum;
 use VitesseCms\Spreadshirt\Listeners\Admin\AdmindesignControllerListener;
 use VitesseCms\Spreadshirt\Listeners\Admin\AdminMenuListener;
 use VitesseCms\Spreadshirt\Listeners\Admin\AdminproductControllerListener;
+use VitesseCms\Spreadshirt\Listeners\Controllers\AdminprinttypeControllerListeners;
 use VitesseCms\Spreadshirt\Listeners\Controllers\AdminproducttypeControllerListener;
+use VitesseCms\Spreadshirt\Listeners\Models\PrintTypeListener;
 use VitesseCms\Spreadshirt\Listeners\Models\ProductTypeListener;
+use VitesseCms\Spreadshirt\Repositories\PrintTypeRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductTypeRepository;
 
 final class InitiateAdminListeners implements InitiateListenersInterface
@@ -29,14 +34,25 @@ final class InitiateAdminListeners implements InitiateListenersInterface
                 $di->configuration->getLanguageShort()
             )
         );
-        $di->eventsManager->attach(AdminproductController::class, new AdminproductControllerListener());
-        $di->eventsManager->attach(AdmindesignController::class, new AdmindesignControllerListener());
+
+        self::addModels($di);
+        self::addControllers($di);
+    }
+
+    private static function addModels(InjectableInterface $di): void
+    {
         $di->eventsManager->attach(
             ProductTypeEnum::LISTENER->value,
-            new ProductTypeListener(
-                new ProductTypeRepository()
-            )
+            new ProductTypeListener(new ProductTypeRepository())
         );
+        $di->eventsManager->attach(PrintTypeEnum::LISTENER->value, new PrintTypeListener(new PrintTypeRepository()));
+    }
+
+    private static function addControllers(InjectableInterface $di): void
+    {
+        $di->eventsManager->attach(AdminproductController::class, new AdminproductControllerListener());
+        $di->eventsManager->attach(AdmindesignController::class, new AdmindesignControllerListener());
         $di->eventsManager->attach(AdminproducttypeController::class, new AdminproducttypeControllerListener());
+        $di->eventsManager->attach(AdminprinttypeController::class, new AdminprinttypeControllerListeners());
     }
 }
