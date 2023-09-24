@@ -4,25 +4,68 @@ declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
-use VitesseCms\Admin\AbstractAdminController;
+use ArrayIterator;
+use stdClass;
+use VitesseCms\Admin\Interfaces\AdminModelEditableInterface;
+use VitesseCms\Admin\Interfaces\AdminModelFormInterface;
+use VitesseCms\Admin\Interfaces\AdminModelListInterface;
+use VitesseCms\Admin\Interfaces\AdminModelPublishableInterface;
+use VitesseCms\Admin\Traits\TraitAdminModelEditable;
+use VitesseCms\Admin\Traits\TraitAdminModelList;
+use VitesseCms\Admin\Traits\TraitAdminModelPublishable;
+use VitesseCms\Core\AbstractControllerAdmin;
+use VitesseCms\Database\AbstractCollection;
+use VitesseCms\Database\Models\FindOrder;
+use VitesseCms\Database\Models\FindOrderIterator;
+use VitesseCms\Database\Models\FindValueIterator;
+use VitesseCms\Spreadshirt\Enums\ProductTypeEnum;
 use VitesseCms\Spreadshirt\Factories\ProductTypeFactory;
 use VitesseCms\Spreadshirt\Forms\ProductTypeForm;
-use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
-use VitesseCms\Spreadshirt\Interfaces\RepositoriesInterface;
 use VitesseCms\Spreadshirt\Models\ProductType;
+use VitesseCms\Spreadshirt\Repositories\ProductTypeRepository;
 
-use function count;
-
-class AdminproducttypeController
-    extends AbstractAdminController
-    implements RepositoriesInterface, ModuleInterface
+class AdminproducttypeController extends AbstractControllerAdmin implements
+    AdminModelPublishableInterface,
+    AdminModelEditableInterface,
+    AdminModelListInterface
 {
+    use TraitAdminModelEditable;
+    use TraitAdminModelPublishable;
+    use TraitAdminModelList;
+
+    private readonly ProductTypeRepository $productTypeRepository;
+
     public function onConstruct()
     {
         parent::onConstruct();
 
-        $this->class = ProductType::class;
-        $this->classForm = ProductTypeForm::class;
+        $this->productTypeRepository = $this->eventsManager->fire(
+            ProductTypeEnum::GET_REPOSITORY->value,
+            new stdClass()
+        );
+    }
+
+    public function getModel(string $id): ?AbstractCollection
+    {
+        return match ($id) {
+            'new' => new ProductType(),
+            default => $this->productTypeRepository->getById($id, false)
+        };
+    }
+
+    public function getModelList(?FindValueIterator $findValueIterator): ArrayIterator
+    {
+        return $this->productTypeRepository->findAll(
+            $findValueIterator,
+            false,
+            99999,
+            new FindOrderIterator([new FindOrder('createdAt', -1)])
+        );
+    }
+
+    public function getModelForm(): AdminModelFormInterface
+    {
+        return new ProductTypeForm();
     }
 
     public function reloadAction(): void

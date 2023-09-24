@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Forms;
 
+use VitesseCms\Admin\Interfaces\AdminModelFormInterface;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\Enum\SystemEnum;
 use VitesseCms\Core\Helpers\ItemHelper;
@@ -13,13 +14,11 @@ use VitesseCms\Form\Helpers\ElementHelper;
 use VitesseCms\Form\Models\Attributes;
 use VitesseCms\Shop\Models\TaxRate;
 use VitesseCms\Spreadshirt\Factories\PrintTypeFactory;
-use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 use VitesseCms\Spreadshirt\Models\PrintType;
-use VitesseCms\Spreadshirt\Models\ProductType;
 
-class ProductTypeForm extends AbstractForm implements ModuleInterface
+final class ProductTypeForm extends AbstractForm implements AdminModelFormInterface
 {
-    public function initialize(ProductType $item): void
+    public function buildForm(): void
     {
         Datagroup::setFindValue('component', SystemEnum::COMPONENT_WEBSHOP_PRODUCT);
         Datagroup::setFindValue('parentId', null);
@@ -39,9 +38,9 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
 
         $html = '<div class="row">
             <div class="col-12 col-md-6 col-lg-2">
-                <img src="' . $item->_('previewImage') . '" />
+                <img src="' . $this->entity->_('previewImage') . '" />
             </div>';
-        foreach ($item->_('appearances') as $appearanceId => $appearance) :
+        foreach ($this->entity->_('appearances') as $appearanceId => $appearance) :
             $html .= '<div class="col-12 col-md-6 col-lg-2">
                 <img src="' . $appearance['image'] . '" />&nbsp;' . $appearance['colorName'] . ' (' . $appearanceId . ')<br />';
             foreach ($appearance['stockStates'] as $size => $stock) {
@@ -58,7 +57,7 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
             $productTypeItems = Item::findAll();
         endif;
 
-        $productTypeDTO = $this->spreadshirt->productType->get($item->getInt('productTypeId'));
+        $productTypeDTO = $this->spreadshirt->productType->get($this->entity->getInt('productTypeId'));
         $views = [];
         foreach ($productTypeDTO->views as $view) {
             $views[(int)$view->id] = $view->name;
@@ -114,14 +113,14 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
                 'productTypePrintAreaId',
                 'productTypePrintAreaId',
                 (new Attributes())->setRequired()
-                    ->setDefaultValue((int)$item->_('productTypePrintAreaId'))
+                    ->setDefaultValue((int)$this->entity->_('productTypePrintAreaId'))
                     ->setOptions(ElementHelper::arrayToSelectOptions($printAreas))
             )
             ->addDropdown(
                 'printTypeId',
                 'printTypeId',
                 (new Attributes())->setRequired()
-                    ->setDefaultValue((int)$item->_('printTypeId'))
+                    ->setDefaultValue((int)$this->entity->_('printTypeId'))
                     ->setOptions(ElementHelper::arrayToSelectOptions($printTypesIds))
             )
             ->addHtml($html)
