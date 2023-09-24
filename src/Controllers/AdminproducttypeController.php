@@ -28,9 +28,10 @@ class AdminproducttypeController
     public function reloadAction(): void
     {
         $productTypesDTO = $this->spreadshirt->productType->getAll();
+        $getProductTypeDTOs = $productTypesDTO->getProductTypeDTOs();
 
-        while ($productTypesDTO->getProductTypeDTOs()->valid()) {
-            $productTypeDTO = $productTypesDTO->getProductTypeDTOs()->current();
+        while ($getProductTypeDTOs->valid()) {
+            $productTypeDTO = $getProductTypeDTOs->current();
             $previewImage = $productTypeDTO->previewImage;
 
             $sizesMap = [];
@@ -53,17 +54,16 @@ class AdminproducttypeController
             foreach ($productTypeDTO->stockStates as $stockState) {
                 $appearanceId = (int)$stockState->appearance->id;
                 $sizeId = (int)$stockState->size->id;
-                $stock = 0;
                 if ($stockState->available) :
-                    $stock = $stockState->quantity;
+                    $appearances[$appearanceId]['stockStates'][$sizesIdMap[$sizeId]] = $stockState->quantity;
                 endif;
-                $appearances[$appearanceId]['stockStates'][$sizesIdMap[$sizeId]] = $stock;
             }
 
             $productTypeId = $productTypeDTO->id;
             ProductType::setFindPublished(false);
             ProductType::setFindValue('productTypeId', $productTypeId);
             $productTypeItem = ProductType::findAll();
+
             if (count($productTypeItem) === 0) {
                 ProductTypeFactory::create(
                     $productTypeDTO->name,
@@ -86,8 +86,8 @@ class AdminproducttypeController
                     ->set('appearances', $appearances)
                     ->save();
             }
-            
-            $productTypesDTO->getProductTypeDTOs()->next();
+
+            $getProductTypeDTOs->next();
         }
 
         $this->flash->setSucces('ProductTypes reloaded');

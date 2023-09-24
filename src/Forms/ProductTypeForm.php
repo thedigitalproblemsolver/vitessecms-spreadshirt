@@ -1,13 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Forms;
 
-use Phalcon\Mvc\Collection\Exception;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\Enum\SystemEnum;
 use VitesseCms\Core\Helpers\ItemHelper;
 use VitesseCms\Datagroup\Models\Datagroup;
-use VitesseCms\Core\Utils\XmlUtil;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
 use VitesseCms\Form\Models\Attributes;
@@ -19,11 +19,6 @@ use VitesseCms\Spreadshirt\Models\ProductType;
 
 class ProductTypeForm extends AbstractForm implements ModuleInterface
 {
-    /**
-     * @param ProductType $item
-     *
-     * @throws Exception
-     */
     public function initialize(ProductType $item): void
     {
         Datagroup::setFindValue('component', SystemEnum::COMPONENT_WEBSHOP_PRODUCT);
@@ -63,74 +58,72 @@ class ProductTypeForm extends AbstractForm implements ModuleInterface
             $productTypeItems = Item::findAll();
         endif;
 
-        $productTypeXml = $this->spreadshirt->productType->get((int)$item->_('productTypeId'));
+        $productTypeDTO = $this->spreadshirt->productType->get($item->getInt('productTypeId'));
         $views = [];
-        foreach ($productTypeXml->views->view as $view) :
-            $views[(int)XmlUtil::getAttribute($view, 'id')] = (string)$view->name;
-        endforeach;
-        foreach ($productTypeXml->printAreas->printArea as $printArea) :
-            $printAreaId = (int)XmlUtil::getAttribute($printArea, 'id');
-            $printAreas[$printAreaId] = $views[(int)XmlUtil::getAttribute($printArea->defaultView, 'id')];
-        endforeach;
+        foreach ($productTypeDTO->views as $view) {
+            $views[(int)$view->id] = $view->name;
+        }
+        foreach ($productTypeDTO->printAreas as $printArea) {
+            $printAreas[(int)$printArea->id] = $views[(int)$printArea->defaultView->id];
+        }
 
         $printTypesIds = [];
-        foreach ($productTypeXml->appearances->appearance as $appearance) :
-            foreach ($appearance->printTypes->printType as $printType) :
-                $printTypeId = (int)XmlUtil::getAttribute($printType, 'id');
+        foreach ($productTypeDTO->appearances as $appearance) {
+            foreach ($appearance->printTypes as $printType) {
+                $printTypeId = (int)$printType->id;
                 if (!isset($printTypes[$printTypeId])) :
-                    PrintType::setFindValue('printTypeId', (string)$printTypeId);
+                    PrintType::setFindValue('printTypeId', $printTypeId);
                     if (PrintType::count() === 0):
-                        PrintType::setFindValue('printTypeId', (int)$printTypeId);
-                        if (PrintType::count() === 0):
-                            $printTypeXml = $this->spreadshirt->printType->get($printTypeId);
-                            $type = PrintTypeFactory::create(
-                                (string)$printTypeXml->name,
-                                $printTypeId,
-                                true
-                            );
-                            $type->save();
-                        else :
-                            PrintType::setFindValue('printTypeId', $printTypeId);
-                            $type = PrintType::findFirst();
-                        endif;
+                        $printTypeDTO = $this->spreadshirt->printType->get($printTypeId);
+                        $type = PrintTypeFactory::create(
+                            $printTypeDTO->name,
+                            $printTypeId,
+                            true
+                        );
+                        $type->save();
                     else :
-                        PrintType::setFindValue('printTypeId', (string)$printTypeId);
+                        PrintType::setFindValue('printTypeId', $printTypeId);
                         $type = PrintType::findFirst();
                     endif;
                     $printTypesIds[$printTypeId] = $type->_('name');
                 endif;
-            endforeach;
-        endforeach;
+            }
+        }
 
         $this->addText('productTypeId', 'productTypeId', (new Attributes())->setReadonly())
             ->addDropdown(
                 'Create product as Child of',
                 'productParentItem',
                 (new Attributes())->setInputClass('select2')
-                    ->setOptions(ElementHelper::arrayToSelectOptions($itemOptions)))
+                    ->setOptions(ElementHelper::arrayToSelectOptions($itemOptions))
+            )
             ->addDropdown(
                 'Manufacturer',
                 'manufacturer',
                 (new Attributes())->setInputClass('select2')
-                    ->setOptions(ElementHelper::arrayToSelectOptions($productTypeItems, [], true)))
+                    ->setOptions(ElementHelper::arrayToSelectOptions($productTypeItems, [], true))
+            )
             ->addNumber('Purchase price ex VAT', 'price_purchase', (new Attributes())->setStep(0.01))
             ->addNumber('Sale Price incl. VAT', 'price_sale', (new Attributes())->setStep(0.01))
             ->addDropdown(
                 'Tax-Rate',
                 'taxrate',
-                (new Attributes())->setOptions(ElementHelper::arrayToSelectOptions(TaxRate::findAll())))
+                (new Attributes())->setOptions(ElementHelper::arrayToSelectOptions(TaxRate::findAll()))
+            )
             ->addDropdown(
                 'productTypePrintAreaId',
                 'productTypePrintAreaId',
                 (new Attributes())->setRequired()
                     ->setDefaultValue((int)$item->_('productTypePrintAreaId'))
-                    ->setOptions(ElementHelper::arrayToSelectOptions($printAreas)))
+                    ->setOptions(ElementHelper::arrayToSelectOptions($printAreas))
+            )
             ->addDropdown(
                 'printTypeId',
                 'printTypeId',
                 (new Attributes())->setRequired()
                     ->setDefaultValue((int)$item->_('printTypeId'))
-                    ->setOptions(ElementHelper::arrayToSelectOptions($printTypesIds)))
+                    ->setOptions(ElementHelper::arrayToSelectOptions($printTypesIds))
+            )
             ->addHtml($html)
             ->addText('Introtext', 'introtext')
             ->addEditor('Bodytext', 'bodytext')

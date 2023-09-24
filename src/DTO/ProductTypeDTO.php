@@ -17,8 +17,10 @@ class ProductTypeDTO
     public readonly string $shortDescription;
     public readonly string $description;
     public readonly string $name;
+    public readonly array $views;
+    public readonly array $printAreas;
 
-    public function __construct(private readonly stdClass $jsonData)
+    final public function __construct(private readonly stdClass $jsonData)
     {
         $this->previewImage = $this->jsonData->resources[0]->href;
         $this->sizeImage = $this->jsonData->resources[1]->href;
@@ -29,5 +31,7 @@ class ProductTypeDTO
         $this->shortDescription = $this->jsonData->shortDescription;
         $this->description = $this->jsonData->description;
         $this->name = $this->jsonData->name;
+        $this->views = $this->jsonData->views;
+        $this->printAreas = $this->jsonData->printAreas;
     }
 }

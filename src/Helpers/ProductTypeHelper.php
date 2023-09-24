@@ -1,28 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace VitesseCms\Spreadshirt\Helpers;
 
-use SimpleXMLElement;
 use VitesseCms\Spreadshirt\DTO\ProductTypeDTO;
 use VitesseCms\Spreadshirt\DTO\ProductTypesDTO;
 
-/**
- * Class ProductTypeHelper
- */
 class ProductTypeHelper extends AbstractSpreadShirtHelper
 {
-    /**
-     * @param int $id
-     *
-     * @return SimpleXMLElement
-     */
-    public function get(int $id): SimpleXMLElement
+    public function get(int $id): ProductTypeDTO
     {
         $ch = $this->getCurlInstance($this->baseUrl . 'productTypes/' . $id, 'GET');
         $result = curl_exec($ch);
         curl_close($ch);
 
-        return new SimpleXMLElement($result);
+        return new ProductTypeDTO(json_decode($result));
     }
 
     public function getAll(): ProductTypesDTO

@@ -8,7 +8,7 @@ use stdClass;
 
 class ProductDTO
 {
-    public function __construct(private readonly stdClass $jsonData)
+    final public function __construct(private readonly stdClass $jsonData)
     {
     }
 
