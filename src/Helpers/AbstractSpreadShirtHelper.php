@@ -95,10 +95,10 @@ abstract class AbstractSpreadShirtHelper
     {
         if ($this->sessionId === null) :
             $login = $this->eventsManager->fire(
-                ViewEnum::RENDER_TEMPLATE_EVENT,
+                \VitesseCms\Mustache\Enum\ViewEnum::RENDER_TEMPLATE_EVENT,
                 new RenderTemplateDTO(
                     'api_login',
-                    $this->router->getModuleName() . '/src/Resources/xml/',
+                    '',
                     [
                         'apiLogin' => $this->apiLogin,
                         'apiPassword' => $this->apiPassword,
@@ -109,7 +109,7 @@ abstract class AbstractSpreadShirtHelper
             $ch = curl_init('http://api.spreadshirt.net/api/v1/sessions');
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/xml']);
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $login->asXML());
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $login);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($ch, CURLOPT_ENCODING, '');
@@ -121,6 +121,7 @@ abstract class AbstractSpreadShirtHelper
             }
 
             curl_close($ch);
+            
             $this->sessionId = XmlUtil::getAttribute(new SimpleXMLElement($result), 'id');
         endif;
     }

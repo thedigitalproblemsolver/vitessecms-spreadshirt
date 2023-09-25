@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
@@ -11,13 +12,14 @@ use VitesseCms\Form\Models\Attributes;
 use VitesseCms\Spreadshirt\Factories\DesignFactory;
 use VitesseCms\Spreadshirt\Factories\ProductFactory;
 use VitesseCms\Spreadshirt\Forms\DesignForm;
+use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 use VitesseCms\Spreadshirt\Interfaces\RepositoriesInterface;
 use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
-use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 
-class AdmindesignController extends AbstractAdminController implements ModuleInterface, RepositoriesInterface {
+class AdmindesignController extends AbstractAdminController implements ModuleInterface, RepositoriesInterface
+{
     public function onConstruct()
     {
         parent::onConstruct();
@@ -58,6 +60,8 @@ class AdmindesignController extends AbstractAdminController implements ModuleInt
     public function importFormAction(): void
     {
         $spreadshirtDesigns = $this->spreadshirt->design->getAll();
+        var_dump($spreadshirtDesigns);
+        die();
 
         $form = new BaseForm();
         foreach ($spreadshirtDesigns->design as $design):

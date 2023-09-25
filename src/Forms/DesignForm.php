@@ -1,21 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Forms;
 
+use Phalcon\Tag;
 use VitesseCms\Content\Models\Item;
-use VitesseCms\Core\Utils\XmlUtil;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
 use VitesseCms\Form\Models\Attributes;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 use VitesseCms\Spreadshirt\Models\Design;
-use Phalcon\Tag;
 
-class DesignForm extends AbstractForm implements ModuleInterface
+final class DesignForm extends AbstractForm implements ModuleInterface
 {
     public function initialize(Design $item): void
     {
-        $designCategories = $this->spreadshirt->design->getCategories();
+        /*$designCategories = $this->spreadshirt->design->getCategories();
         $designCategoryOptions = [];
         foreach ($designCategories->designCategory as $designCategory):
             $name = (string)$designCategory->name;
@@ -30,11 +31,12 @@ class DesignForm extends AbstractForm implements ModuleInterface
                     }
                 }
             }
-        endforeach;
+        endforeach;*/
 
         $datagroup = $this->setting->get('SPREADSHIRT_BASEDESIGN_DATAGROUP');
         Item::setFindValue('datagroup', $datagroup);
         Item::setFindPublished(false);
+        Item::addFindOrder('name');
         $designs = Item::findAll();
 
         $html = serialize($item->_('printTypeIds'));
@@ -44,7 +46,9 @@ class DesignForm extends AbstractForm implements ModuleInterface
             $file = $this->config->get('uploadDir') . $design->_('spreadshirtRasterizedImage');
             if (is_file($file)) :
                 $html .= '<br />' . Tag::image([
-                        'src' => $this->configuration->getUploadUri() . '/' . $design->_('spreadshirtRasterizedImage') . '?h=250'
+                        'src' => $this->configuration->getUploadUri() . '/' . $design->_(
+                                'spreadshirtRasterizedImage'
+                            ) . '?h=250'
                     ]);
             endif;
         endif;
@@ -55,17 +59,20 @@ class DesignForm extends AbstractForm implements ModuleInterface
             (new Attributes())->setRequired()->setOptions(ElementHelper::arrayToSelectOptions($designs))
         )
             ->addText('DesignId', 'designId', (new Attributes())->setReadonly())
-            ->addDropdown(
+            /*->addDropdown(
                 'Design categories',
                 'designCategories',
                 (new Attributes())->setRequired()
                     ->setMultiple()
                     ->setInputClass('select2')
                     ->setOptions(ElementHelper::arrayToSelectOptions($designCategoryOptions))
-            )
+            )*/
             ->addNumber('Design price on marketplace', 'designPrice')
             ->addHtml($html)
-            ->addText('Scale', 'scale', (new Attributes())->setRequired()
+            ->addText(
+                'Scale',
+                'scale',
+                (new Attributes())->setRequired()
             )->addSubmitButton('%CORE_SAVE%');
     }
 }

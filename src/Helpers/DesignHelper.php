@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Helpers;
 
-use VitesseCms\Core\Utils\XmlUtil;
 use SimpleXMLElement;
+use VitesseCms\Core\Utils\XmlUtil;
 
-class DesignHelper extends AbstractSpreadShirtHelper
+final class DesignHelper extends AbstractSpreadShirtHelper
 {
     public function get(string $designId): SimpleXMLElement
     {
@@ -29,17 +31,22 @@ class DesignHelper extends AbstractSpreadShirtHelper
     {
         $ch = $this->getCurlInstance(
             $this->baseUrl . 'designs',
-            'POST',
-            'application/xml'
+            'POST'
+        //'application/xml'
         );
-        curl_setopt($ch, CURLOPT_POSTFIELDS, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        curl_setopt(
+            $ch,
+            CURLOPT_POSTFIELDS,
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <design xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://api.spreadshirt.net">
                 <name>' . $name . '</name>
                 <description>' . $description . '</description>
-            </design>');
+            </design>'
+        );
         $result = curl_exec($ch);
         curl_close($ch);
-
+        var_dump($result);
+        die();
         return XmlUtil::getAttribute(new SimpleXMLElement($result), 'id');
     }
 
@@ -51,7 +58,10 @@ class DesignHelper extends AbstractSpreadShirtHelper
         endforeach;
 
         $ch = $this->getCurlInstance($this->baseUrl . 'designs/' . $id, 'PUT', 'application/xml');
-        curl_setopt($ch, CURLOPT_PUT, '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        curl_setopt(
+            $ch,
+            CURLOPT_PUT,
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
             <design 
                 xmlns:xlink="http://www.w3.org/1999/xlink" 
                 xmlns="http://api.spreadshirt.net"
@@ -70,7 +80,8 @@ class DesignHelper extends AbstractSpreadShirtHelper
                     <vat>0</vat>
                     <currency xlink:href="https://api.spreadshirt.net/api/v1/currencies/1" id="1"/>
                 </price>
-            </design>');
+            </design>'
+        );
         $result = curl_exec($ch);
         curl_close($ch);
 
@@ -104,12 +115,15 @@ class DesignHelper extends AbstractSpreadShirtHelper
         return $result;
     }
 
-    public function getCategories(): SimpleXMLElement
+    /*public function getCategories(): SimpleXMLElement
     {
         $ch = $this->getCurlInstance($this->baseUrl . 'designCategories/', 'GET');
         $result = curl_exec($ch);
         curl_close($ch);
 
+        var_dump($result);
+        die();
+
         return new SimpleXMLElement($result);
-    }
+    }*/
 }
