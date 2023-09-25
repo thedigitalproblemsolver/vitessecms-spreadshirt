@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Forms;
 
@@ -12,6 +13,7 @@ use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\PrintType;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
+
 use function count;
 use function in_array;
 use function is_array;
@@ -81,7 +83,8 @@ class ProductForm extends AbstractForm implements ModuleInterface
                 'design',
                 (new Attributes())->setRequired()
                     ->setReadonly()
-                    ->setOptions(ElementHelper::arrayToSelectOptions(Design::findAll())))
+                    ->setOptions(ElementHelper::arrayToSelectOptions(Design::findAll()))
+            )
                 ->addText('Scale', 'scale', (new Attributes())->setRequired())
                 ->addNumber('Offset top', 'offsetTop');
 
@@ -150,7 +153,8 @@ class ProductForm extends AbstractForm implements ModuleInterface
                         ->addToggle(
                             '<img onclick="$(this).closest(\'.form-group\').toggleClass(\'selected\')" src="' . $appearance['image'] . '?height=250"/>',
                             'selectedVariations[' . $appearance['color'] . ']',
-                            (new Attributes())->setChecked())
+                            (new Attributes())->setChecked()
+                        )
                         ->addHtml('</div>');
                 endforeach;
                 $this->addHtml('</div>');

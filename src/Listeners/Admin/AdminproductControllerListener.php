@@ -1,11 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Listeners\Admin;
 
+use Phalcon\Events\Event;
 use VitesseCms\Spreadshirt\Controllers\AdminproductController;
 use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\Product;
-use Phalcon\Events\Event;
 use VitesseCms\Spreadshirt\Models\ProductType;
 
 class AdminproductControllerListener
@@ -38,12 +39,14 @@ class AdminproductControllerListener
             && $product->getProductTypePrintAreaId() !== null
             && $product->getPrintTypeId() !== null
         ) :
-            $product->setAppearances($controller->spreadshirt->product->getAppearances(
-                $product,
-                $controller->spreadshirt->productType,
-                $controller->spreadshirt->printType,
-                $controller->repositories
-            ));
+            $product->setAppearances(
+                $controller->spreadshirt->product->getAppearances(
+                    $product,
+                    $controller->spreadshirt->productType,
+                    $controller->spreadshirt->printType,
+                    $controller->repositories
+                )
+            );
         endif;
 
         if ($controller->request->hasPost('selectedVariations')) :

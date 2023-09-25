@@ -1,7 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
+use MongoDB\BSON\ObjectId;
 use VitesseCms\Admin\AbstractAdminController;
 use VitesseCms\Shop\Enum\OrderStateEnum;
 use VitesseCms\Shop\Models\Order;
@@ -9,7 +11,6 @@ use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 use VitesseCms\Spreadshirt\Models\Basket;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
-use MongoDB\BSON\ObjectId;
 
 class AdmincheckoutController
     extends AbstractAdminController
@@ -34,11 +35,14 @@ class AdmincheckoutController
         ViewHelper::setTemplatePath($this->config->get('rootDir').'src/spreadshirt/Resources/views/admin/');
         ViewHelper::setTemplate('checkout');*/
 
-        $this->view->setVar('content', $this->view->renderTemplate(
-            'checkout',
-            $this->configuration->getRootDir() . 'src/spreadshirt/Resources/views/admin/',
-            ['orders' => $orders]
-        ));
+        $this->view->setVar(
+            'content',
+            $this->view->renderTemplate(
+                'checkout',
+                $this->configuration->getRootDir() . 'src/spreadshirt/Resources/views/admin/',
+                ['orders' => $orders]
+            )
+        );
         $this->prepareView();
     }
 
@@ -57,9 +61,12 @@ class AdmincheckoutController
                     $productType = ProductType::findById($spreadShirtProduct->_('productType'));
                     foreach ($product['quantity'] as $variation => $quantity) :
                         //var_dump($variation);
-                        $variation = array_reverse(explode('_',
-                            str_replace('ONE_SIZE', 'ONE SIZE', $variation)
-                        ));
+                        $variation = array_reverse(
+                            explode(
+                                '_',
+                                str_replace('ONE_SIZE', 'ONE SIZE', $variation)
+                            )
+                        );
                         $size = $variation[0];
                         unset($variation[0]);
                         $colorName = strtolower(implode(' ', array_reverse($variation)));

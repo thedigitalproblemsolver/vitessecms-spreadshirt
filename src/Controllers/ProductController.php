@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
@@ -94,9 +95,8 @@ class ProductController extends AbstractController implements ModuleInterface
     protected function setVariations(
         AbstractCollection $item,
         AbstractCollection $newItem,
-        ProductType        $productType
-    ): void
-    {
+        ProductType $productType
+    ): void {
         $productTypeXml = $this->spreadshirt->productType->get((int)$productType->_('productTypeId'));
         $sizes = $variations = [];
         foreach ($productTypeXml->sizes->size as $size) :
@@ -106,7 +106,9 @@ class ProductController extends AbstractController implements ModuleInterface
         $imageDir = $this->config->get('uploadDir');
         foreach ((array)$item->_('appearances') as $appearance) :
             if (isset($item->_('selectedVariations')[$appearance['color']])) :
-                $imageFile = 'products/' . FileUtil::sanatize($item->_('name') . ' ' . $appearance['colorName']) . '.jpg';
+                $imageFile = 'products/' . FileUtil::sanatize(
+                        $item->_('name') . ' ' . $appearance['colorName']
+                    ) . '.jpg';
                 if (!is_file($imageDir . $imageFile)) :
                     file_put_contents(
                         $imageDir . $imageFile,
@@ -126,11 +128,16 @@ class ProductController extends AbstractController implements ModuleInterface
 
                         if (isset($productType->_('appearances')[$appearance['colorId']]['stockStates'][$size])) :
                             $variations[] = [
-                                'sku' => str_replace(' ', '_',
-                                    strtoupper($appearance['colorName'] . '_' . $size)),
+                                'sku' => str_replace(
+                                    ' ',
+                                    '_',
+                                    strtoupper($appearance['colorName'] . '_' . $size)
+                                ),
                                 'size' => $size,
                                 'color' => $appearance['color'],
-                                'stock' => (int)$productType->_('appearances')[$appearance['colorId']]['stockStates'][$size],
+                                'stock' => (int)$productType->_(
+                                    'appearances'
+                                )[$appearance['colorId']]['stockStates'][$size],
                                 'stockMinimal' => 10,
                                 'ean' => '',
                                 'image' => [$imageFile],
