@@ -13,6 +13,7 @@ use VitesseCms\Spreadshirt\Helpers\PrintTypeHelper;
 use VitesseCms\Spreadshirt\Helpers\ProductHelper;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeHelper;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeViewHelper;
+use VitesseCms\Spreadshirt\Helpers\SellableHelper;
 use VitesseCms\Spreadshirt\Repositories\DesignRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductTypeRepository;
@@ -31,7 +32,8 @@ class Module extends AbstractModule
                 new PrintTypeHelper($di->getEventsManager()),
                 new ProductTypeHelper($di->getEventsManager()),
                 new ProductTypeViewHelper($di->getEventsManager()),
-                new BasketHelper($di->getEventsManager())
+                new BasketHelper($di->getEventsManager()),
+                new SellableHelper($di->getEventsManager())
             )
         );
         $di->setShared(

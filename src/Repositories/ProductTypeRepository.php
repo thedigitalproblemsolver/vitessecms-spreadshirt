@@ -10,13 +10,25 @@ use VitesseCms\Spreadshirt\Models\ProductTypeIterator;
 
 final class ProductTypeRepository
 {
-    public function getById(
-        string $id,
-        bool $hideUnpublished = true
-    ): ?ProductType {
+    public function getById(string $id, bool $hideUnpublished = true): ?ProductType
+    {
         ProductType::setFindPublished($hideUnpublished);
         /** @var ProductType $productType */
         $productType = ProductType::findById($id);
+        if (is_object($productType)):
+            return $productType;
+        endif;
+
+        return null;
+    }
+
+    public function getByProductTypeId(int $productTypeId, bool $hideUnpublished = true): ?ProductType
+    {
+        ProductType::setFindPublished($hideUnpublished);
+        ProductType::setFindValue('productTypeId', $productTypeId);
+
+        /** @var ProductType $productType */
+        $productType = ProductType::findFirst();
         if (is_object($productType)):
             return $productType;
         endif;

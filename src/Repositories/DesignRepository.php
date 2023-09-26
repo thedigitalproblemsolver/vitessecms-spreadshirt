@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Repositories;
 
@@ -10,8 +12,7 @@ class DesignRepository
     public function countAll(
         ?FindValueIterator $findValues = null,
         bool $hideUnpublished = true
-    ): int
-    {
+    ): int {
         Design::setFindPublished($hideUnpublished);
 
         if ($findValues !== null) :
@@ -35,6 +36,20 @@ class DesignRepository
 
         /** @var Design $design */
         $design = Design::findById($id);
+        if (is_object($design)):
+            return $design;
+        endif;
+
+        return null;
+    }
+
+    public function getByDesignId(int $designId, bool $hideUnpublished = true): ?Design
+    {
+        Design::setFindPublished($hideUnpublished);
+        Design::setFindValue('designId', $designId);
+
+        /** @var Design $design */
+        $design = Design::findFirst();
         if (is_object($design)):
             return $design;
         endif;

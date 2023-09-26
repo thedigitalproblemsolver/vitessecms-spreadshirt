@@ -24,7 +24,9 @@ use VitesseCms\Spreadshirt\Listeners\Controllers\AdminsellableControllerListener
 use VitesseCms\Spreadshirt\Listeners\Models\PrintTypeListener;
 use VitesseCms\Spreadshirt\Listeners\Models\ProductTypeListener;
 use VitesseCms\Spreadshirt\Listeners\Models\SellableListener;
+use VitesseCms\Spreadshirt\Repositories\DesignRepository;
 use VitesseCms\Spreadshirt\Repositories\PrintTypeRepository;
+use VitesseCms\Spreadshirt\Repositories\ProductRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductTypeRepository;
 use VitesseCms\Spreadshirt\Repositories\SellableRepository;
 
@@ -51,7 +53,15 @@ final class InitiateAdminListeners implements InitiateListenersInterface
             new ProductTypeListener(new ProductTypeRepository())
         );
         $di->eventsManager->attach(PrintTypeEnum::LISTENER->value, new PrintTypeListener(new PrintTypeRepository()));
-        $di->eventsManager->attach(SellableEnum::LISTENER->value, new SellableListener(new SellableRepository()));
+        $di->eventsManager->attach(
+            SellableEnum::LISTENER->value,
+            new SellableListener(
+                new SellableRepository(),
+                new DesignRepository(),
+                new ProductRepository(),
+                new ProductTypeRepository()
+            )
+        );
     }
 
     private static function addControllers(InjectableInterface $di): void

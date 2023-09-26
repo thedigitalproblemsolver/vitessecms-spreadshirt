@@ -8,4 +8,5 @@ enum SellableEnum: string
 {
     case LISTENER = 'SellableListener';
     case GET_REPOSITORY = 'SellableListener:getRepository';
+    case HANDLE_IMPORT = 'SellableListener:handleImport';
 }

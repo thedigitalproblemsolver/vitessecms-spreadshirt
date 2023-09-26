@@ -1,37 +1,25 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Factories;
 
 use VitesseCms\Spreadshirt\Models\Product;
 
-/**
- * Class ProductFactory
- */
-class ProductFactory
+final class ProductFactory
 {
-
-    /**
-     * @param string $productTypeId
-     * @param string $productTypePrintAreaId
-     * @param string $designId
-     * @param string $printTypeId
-     * @param float $scale
-     *
-     * @return Product
-     */
     public static function create(
+        string $name,
         string $productTypeId,
-        string $productTypePrintAreaId,
         string $designId,
-        string $printTypeId,
-        float $scale = 1
-    ): Product
-    {
-        return (new Product())
-            ->set('productType', $productTypeId)
-            ->set('productTypePrintAreaId', $productTypePrintAreaId)
-            ->set('design', $designId)
-            ->set('printTypeId', $printTypeId)
-            ->set('scale', $scale);
+        bool $published = false
+    ): Product {
+        $product = new Product();
+        $product->productType = $productTypeId;
+        $product->design = $designId;
+        $product->set('name', $name);
+        $product->setPublished($published);
+
+        return $product;
     }
 }

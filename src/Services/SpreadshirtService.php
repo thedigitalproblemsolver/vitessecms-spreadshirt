@@ -10,6 +10,7 @@ use VitesseCms\Spreadshirt\Helpers\PrintTypeHelper;
 use VitesseCms\Spreadshirt\Helpers\ProductHelper;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeHelper;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeViewHelper;
+use VitesseCms\Spreadshirt\Helpers\SellableHelper;
 
 class SpreadshirtService
 {
@@ -19,7 +20,8 @@ class SpreadshirtService
         public readonly PrintTypeHelper $printType,
         public readonly ProductTypeHelper $productType,
         public readonly ProductTypeViewHelper $productTypeView,
-        public readonly BasketHelper $basket
+        public readonly BasketHelper $basket,
+        public readonly SellableHelper $sellable
     ) {
     }
 }

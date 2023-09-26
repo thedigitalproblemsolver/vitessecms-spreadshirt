@@ -6,19 +6,19 @@ namespace VitesseCms\Spreadshirt\DTO;
 
 use ArrayIterator;
 
-final class ProductTypeDTOIterator extends ArrayIterator
+final class SellableDTOIterator extends ArrayIterator
 {
     public function __construct(array $appearanceDTOs)
     {
         parent::__construct($appearanceDTOs);
     }
 
-    public function add(ProductTypeDTO $productType): void
+    public function add(SellableDTO $sellableDTO): void
     {
-        parent::append($productType);
+        parent::append($sellableDTO);
     }
 
-    public function current(): ProductTypeDTO
+    public function current(): SellableDTO
     {
         return parent::current();
     }

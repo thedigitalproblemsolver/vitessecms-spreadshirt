@@ -1,19 +1,18 @@
 <?php
+
 declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Listeners\Admin;
 
 use Phalcon\Events\Event;
 use VitesseCms\Spreadshirt\Controllers\AdminproductController;
-use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\Product;
-use VitesseCms\Spreadshirt\Models\ProductType;
 
 class AdminproductControllerListener
 {
     public function beforeEdit(Event $event, AdminproductController $controller, Product $product): void
     {
-        if (
+        /*if (
             empty($product->getAppearances())
             && $product->getDesignId() !== null
             && $product->getProductTypeId() !== null
@@ -27,12 +26,12 @@ class AdminproductControllerListener
                 $controller->repositories
             );
             $product->setAppearances($appearances)->save();
-        endif;
+        endif;*/
     }
 
     public function beforeModelSave(Event $event, AdminproductController $controller, Product $product): void
     {
-        if (
+        /*if (
             $controller->request->hasPost('renderSpreadShirt')
             && $product->getDesignId() !== null
             && $product->getProductTypeId() !== null
@@ -70,6 +69,6 @@ class AdminproductControllerListener
             $design = Design::findById($product->design);
             $productType = ProductType::findById($product->productType);
             $product->set('name', $productType->_('name') . ' - ' . $design->_('name'), true);
-        endif;
+        endif;*/
     }
 }

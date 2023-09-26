@@ -39,19 +39,20 @@ final class DesignForm extends AbstractForm implements ModuleInterface
         Item::addFindOrder('name');
         $designs = Item::findAll();
 
-        $html = serialize($item->_('printTypeIds'));
-        if ($item->_('baseDesign')) :
+        //$html = serialize($item->_('printTypeIds'));
+        $html = '';
+        if ($item->_('baseDesign')) {
             Item::setFindPublished(false);
             $design = Item::findById($item->_('baseDesign'));
             $file = $this->config->get('uploadDir') . $design->_('spreadshirtRasterizedImage');
-            if (is_file($file)) :
-                $html .= '<br />' . Tag::image([
+            if (is_file($file)) {
+                $html = '<br />' . Tag::image([
                         'src' => $this->configuration->getUploadUri() . '/' . $design->_(
                                 'spreadshirtRasterizedImage'
                             ) . '?h=250'
                     ]);
-            endif;
-        endif;
+            }
+        }
 
         $this->addDropdown(
             'Base Design',
@@ -67,12 +68,12 @@ final class DesignForm extends AbstractForm implements ModuleInterface
                     ->setInputClass('select2')
                     ->setOptions(ElementHelper::arrayToSelectOptions($designCategoryOptions))
             )*/
-            ->addNumber('Design price on marketplace', 'designPrice')
+            //->addNumber('Design price on marketplace', 'designPrice')
             ->addHtml($html)
-            ->addText(
+            /*->addText(
                 'Scale',
                 'scale',
                 (new Attributes())->setRequired()
-            )->addSubmitButton('%CORE_SAVE%');
+            )*/ ->addSubmitButton('%CORE_SAVE%');
     }
 }
