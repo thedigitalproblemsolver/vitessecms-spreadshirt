@@ -19,6 +19,8 @@ class ProductTypeDTO
     public readonly string $name;
     public readonly array $views;
     public readonly array $printAreas;
+    public readonly string $brand;
+    public readonly string $category;
 
     final public function __construct(private readonly stdClass $jsonData)
     {
@@ -33,5 +35,7 @@ class ProductTypeDTO
         $this->name = $this->jsonData->name;
         $this->views = $this->jsonData->views;
         $this->printAreas = $this->jsonData->printAreas;
+        $this->brand = $this->jsonData->brand;
+        $this->category = $this->jsonData->categoryName;
     }
 }

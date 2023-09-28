@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+namespace VitesseCms\Spreadshirt\Enums;
+
+enum SpreadShirtSettingEnum: string
+{
+    case API_KEY = 'SPREADSHIRT_API_KEY';
+    case BASEPRODUCT_DATAGROUP = 'SPREADSHIRT_BASEPRODUCT_DATAGROUP';
+    case MANUFACTURER_DATAGROUP = 'SPREADSHIRT_DATAGROUP_MANUFACTURER';
+    case MIN_DELIVERY = 'SPREADSHIRT_MIN_DELIVERY';
+    case MAX_DELIVERY = 'SPREADSHIRT_MAX_DELIVERY';
+    case PRODUCT_TAXRATE = 'SPREADSHIRT_PRODUCT_TAXRATE';
+}

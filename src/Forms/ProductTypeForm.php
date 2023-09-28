@@ -4,37 +4,55 @@ declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Forms;
 
+use stdClass;
 use VitesseCms\Admin\Interfaces\AdminModelFormInterface;
+use VitesseCms\Content\Enum\ItemEnum;
 use VitesseCms\Content\Models\Item;
+use VitesseCms\Content\Repositories\ItemRepository;
 use VitesseCms\Core\Enum\SystemEnum;
 use VitesseCms\Core\Helpers\ItemHelper;
-use VitesseCms\Datagroup\Models\Datagroup;
+use VitesseCms\Database\Models\FindValue;
+use VitesseCms\Database\Models\FindValueIterator;
+use VitesseCms\Datagroup\Enums\DatagroupEnum;
+use VitesseCms\Datagroup\Repositories\DatagroupRepository;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
 use VitesseCms\Form\Models\Attributes;
-use VitesseCms\Shop\Models\TaxRate;
-use VitesseCms\Spreadshirt\Factories\PrintTypeFactory;
-use VitesseCms\Spreadshirt\Models\PrintType;
+use VitesseCms\Spreadshirt\Enums\SpreadShirtSettingEnum;
 
 final class ProductTypeForm extends AbstractForm implements AdminModelFormInterface
 {
+    private readonly DatagroupRepository $datagroupRepository;
+    private readonly ItemRepository $itemRepository;
+
+    public function __construct($entity = null, array $userOptions = [])
+    {
+        parent::__construct($entity, $userOptions);
+
+        $this->datagroupRepository = $this->eventsManager->fire(DatagroupEnum::GET_REPOSITORY->value, new stdClass());
+        $this->itemRepository = $this->eventsManager->fire(ItemEnum::GET_REPOSITORY, new stdClass());
+    }
+
     public function buildForm(): void
     {
-        Datagroup::setFindValue('component', SystemEnum::COMPONENT_WEBSHOP_PRODUCT);
-        Datagroup::setFindValue('parentId', null);
-        $datagroups = Datagroup::findAll();
+        $datagroups = $this->datagroupRepository->findAll(
+            new FindValueIterator([
+                new FindValue('component', SystemEnum::COMPONENT_WEBSHOP_PRODUCT),
+                new FindValue('parentId', null)
+            ])
+        );
         $itemOptions = [];
-        foreach ($datagroups as $datagroup) :
-            Item::setFindValue('datagroup', (string)$datagroup->getId());
-            $items = Item::findAll();
+        while ($datagroups->valid()) {
+            $datagroup = $datagroups->current();
+            $items = $this->itemRepository->findAll(
+                new FindValueIterator([new FindValue('datagroup', (string)$datagroup->getId())])
+            );
             foreach ($items as $itemOption) :
                 $itemOptions[(string)$itemOption->getId()] = $itemOption->_('name');
-                $itemOptions = ItemHelper::buildItemTree(
-                    (string)$itemOption->getId(),
-                    $itemOptions
-                );
+                $itemOptions = ItemHelper::buildItemTree((string)$itemOption->getId(), $itemOptions);
             endforeach;
-        endforeach;
+            $datagroups->next();
+        }
 
         $html = '<div class="row">
             <div class="col-12 col-md-6 col-lg-2">
@@ -51,43 +69,14 @@ final class ProductTypeForm extends AbstractForm implements AdminModelFormInterf
         $html .= '</div>';
 
         $productTypeItems = [];
-        if ($this->setting->has('SPREADSHIRT_DATAGROUP_MANUFACTURER')) :
-            Item::setFindValue('datagroup', $this->setting->get('SPREADSHIRT_DATAGROUP_MANUFACTURER'));
+        if ($this->setting->has(SpreadShirtSettingEnum::MANUFACTURER_DATAGROUP->value)) :
+            Item::setFindValue(
+                'datagroup',
+                $this->setting->getString(SpreadShirtSettingEnum::MANUFACTURER_DATAGROUP->value)
+            );
             Item::addFindOrder('name');
             $productTypeItems = Item::findAll();
         endif;
-
-        $productTypeDTO = $this->spreadshirt->productType->get($this->entity->getInt('productTypeId'));
-        $views = [];
-        foreach ($productTypeDTO->views as $view) {
-            $views[(int)$view->id] = $view->name;
-        }
-        foreach ($productTypeDTO->printAreas as $printArea) {
-            $printAreas[(int)$printArea->id] = $views[(int)$printArea->defaultView->id];
-        }
-
-        $printTypesIds = [];
-        foreach ($productTypeDTO->appearances as $appearance) {
-            foreach ($appearance->printTypes as $printType) {
-                $printTypeId = (int)$printType->id;
-                if (!isset($printTypes[$printTypeId])) :
-                    PrintType::setFindValue('printTypeId', $printTypeId);
-                    if (PrintType::count() === 0):
-                        $printTypeDTO = $this->spreadshirt->printType->get($printTypeId);
-                        $type = PrintTypeFactory::create(
-                            $printTypeDTO->name,
-                            $printTypeId,
-                            true
-                        );
-                        $type->save();
-                    else :
-                        PrintType::setFindValue('printTypeId', $printTypeId);
-                        $type = PrintType::findFirst();
-                    endif;
-                    $printTypesIds[$printTypeId] = $type->_('name');
-                endif;
-            }
-        }
 
         $this->addText('productTypeId', 'productTypeId', (new Attributes())->setReadonly())
             ->addDropdown(
@@ -101,27 +90,6 @@ final class ProductTypeForm extends AbstractForm implements AdminModelFormInterf
                 'manufacturer',
                 (new Attributes())->setInputClass('select2')
                     ->setOptions(ElementHelper::arrayToSelectOptions($productTypeItems, [], true))
-            )
-            ->addNumber('Purchase price ex VAT', 'price_purchase', (new Attributes())->setStep(0.01))
-            ->addNumber('Sale Price incl. VAT', 'price_sale', (new Attributes())->setStep(0.01))
-            ->addDropdown(
-                'Tax-Rate',
-                'taxrate',
-                (new Attributes())->setOptions(ElementHelper::arrayToSelectOptions(TaxRate::findAll()))
-            )
-            ->addDropdown(
-                'productTypePrintAreaId',
-                'productTypePrintAreaId',
-                (new Attributes())->setRequired()
-                    ->setDefaultValue((int)$this->entity->_('productTypePrintAreaId'))
-                    ->setOptions(ElementHelper::arrayToSelectOptions($printAreas))
-            )
-            ->addDropdown(
-                'printTypeId',
-                'printTypeId',
-                (new Attributes())->setRequired()
-                    ->setDefaultValue((int)$this->entity->_('printTypeId'))
-                    ->setOptions(ElementHelper::arrayToSelectOptions($printTypesIds))
             )
             ->addHtml($html)
             ->addText('Introtext', 'introtext')

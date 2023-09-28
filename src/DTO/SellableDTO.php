@@ -14,6 +14,7 @@ final class SellableDTO
     public readonly array $appearanceIds;
     public readonly string $previewImage;
     public readonly int $defaultAppearanceId;
+    public readonly float $priceSale;
 
     public function __construct(private readonly stdClass $jsonData)
     {
@@ -23,5 +24,6 @@ final class SellableDTO
         $this->appearanceIds = $this->jsonData->appearanceIds;
         $this->previewImage = $this->jsonData->previewImage->url;
         $this->defaultAppearanceId = (int)$this->jsonData->defaultAppearanceId;
+        $this->priceSale = $this->jsonData->price->amount;
     }
 }

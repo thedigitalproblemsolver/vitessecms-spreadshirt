@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Listeners;
 
+use VitesseCms\Content\Repositories\ItemRepository;
 use VitesseCms\Core\Interfaces\InitiateListenersInterface;
 use VitesseCms\Core\Interfaces\InjectableInterface;
+use VitesseCms\Spreadshirt\Enums\ProductEnum;
 use VitesseCms\Spreadshirt\Enums\SellableEnum;
-use VitesseCms\Spreadshirt\Enums\SettingEnum;
+use VitesseCms\Spreadshirt\Enums\SpreadShirtSettingEnum;
+use VitesseCms\Spreadshirt\Helpers\ProductTypeHelper;
 use VitesseCms\Spreadshirt\Listeners\Admin\AdminMenuListener;
+use VitesseCms\Spreadshirt\Listeners\Models\ProductListener;
 use VitesseCms\Spreadshirt\Listeners\Models\SellableListener;
 use VitesseCms\Spreadshirt\Repositories\DesignRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductRepository;
@@ -22,7 +26,7 @@ class InitiateListeners implements InitiateListenersInterface
         $di->eventsManager->attach(
             'adminMenu',
             new AdminMenuListener(
-                $di->setting->has(SettingEnum::SPREADSHIRT_API_KEY),
+                $di->setting->has(SpreadShirtSettingEnum::API_KEY->value),
                 $di->configuration->getLanguageShort()
             )
         );
@@ -32,7 +36,20 @@ class InitiateListeners implements InitiateListenersInterface
                 new SellableRepository(),
                 new DesignRepository(),
                 new ProductRepository(),
-                new ProductTypeRepository()
+                new ProductTypeRepository(),
+                $di->jobQueue
+            )
+        );
+        $di->eventsManager->attach(
+            ProductEnum::LISTENER->value,
+            new ProductListener(
+                new ProductRepository(),
+                new ItemRepository(),
+                new ProductTypeRepository(),
+                new DesignRepository(),
+                $di->setting,
+                new ProductTypeHelper($di->eventsManager),
+                $di->configuration->getUploadDir()
             )
         );
     }

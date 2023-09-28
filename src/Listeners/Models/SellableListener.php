@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace VitesseCms\Spreadshirt\Listeners\Models;
 
 use Phalcon\Events\Event;
+use VitesseCms\Job\Services\BeanstalkService;
 use VitesseCms\Spreadshirt\DTO\SellableDTO;
+use VitesseCms\Spreadshirt\Enums\ProductEnum;
 use VitesseCms\Spreadshirt\Factories\DesignFactory;
 use VitesseCms\Spreadshirt\Factories\ProductFactory;
 use VitesseCms\Spreadshirt\Models\Design;
+use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
 use VitesseCms\Spreadshirt\Repositories\DesignRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductRepository;
@@ -21,7 +24,8 @@ final class SellableListener
         private readonly SellableRepository $sellableRepository,
         private readonly DesignRepository $designRepository,
         private readonly ProductRepository $productRepository,
-        private readonly ProductTypeRepository $productTypeRepository
+        private readonly ProductTypeRepository $productTypeRepository,
+        private readonly BeanstalkService $beanstalkService
     ) {
     }
 
@@ -40,7 +44,19 @@ final class SellableListener
         );
 
         $design = $this->handleDesign($sellableDTO->mainDesignId, $sellableDTO->name);
-        $this->handleProduct($design, $productType, $sellableDTO->appearanceIds, $appearanceBaseUrl);
+        $product = $this->handleProduct(
+            $design,
+            $productType,
+            $sellableDTO->appearanceIds,
+            $sellableDTO->priceSale,
+            $appearanceBaseUrl
+        );
+
+        $this->beanstalkService->createListenerJob(
+            'Covert Spreadshirt product to shop Product',
+            ProductEnum::CONVERT_TO_SHOP_PRODUCT->value,
+            $product
+        );
     }
 
     private function handleDesign(int $mainDesignId, string $designName): Design
@@ -58,8 +74,9 @@ final class SellableListener
         Design $design,
         ProductType $productType,
         array $appearanceIds,
+        float $priceSale,
         string $appearanceBaseUrl
-    ): void {
+    ): Product {
         $productType->setPublished(true);
         $productType->save();
 
@@ -79,7 +96,10 @@ final class SellableListener
         }
         $product->appearances = $appearanceIds;
         $product->appearanceBaseImageUrl = $appearanceBaseUrl;
+        $product->priceSale = $priceSale;
         $product->setPublished(true);
         $product->save();
+
+        return $product;
     }
 }

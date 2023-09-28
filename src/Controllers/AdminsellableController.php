@@ -74,12 +74,11 @@ final class AdminsellableController extends AbstractControllerAdmin implements
         $sellableDTOIterator = $sellablesDTO->getSellabeDTOs();
         while ($sellableDTOIterator->valid()) {
             $sellableDTO = $sellableDTOIterator->current();
-            var_dump(
-                $this->jobQueue->createListenerJob(
-                    'Spreadshirts sellable : ' . $sellableDTO->name,
-                    SellableEnum::HANDLE_IMPORT->value,
-                    $sellableDTO
-                )
+
+            $this->jobQueue->createListenerJob(
+                'Spreadshirts sellable : ' . $sellableDTO->name,
+                SellableEnum::HANDLE_IMPORT->value,
+                $sellableDTO
             );
             $sellableDTOIterator->next();
         }

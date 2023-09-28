@@ -9,7 +9,7 @@ use VitesseCms\Core\Utils\XmlUtil;
 
 final class DesignHelper extends AbstractSpreadShirtHelper
 {
-    public function get(string $designId): SimpleXMLElement
+    public function get(int $designId): SimpleXMLElement
     {
         $ch = $this->getCurlInstance($this->baseUrl . 'designs/' . $designId, 'GET');
         $result = curl_exec($ch);

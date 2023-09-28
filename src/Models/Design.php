@@ -9,4 +9,5 @@ use VitesseCms\Database\AbstractCollection;
 final class Design extends AbstractCollection
 {
     public ?int $designId;
+    public ?string $baseDesign = null;
 }
