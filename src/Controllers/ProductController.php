@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
+use Phalcon\Incubator\MongoDB\Mvc\Collection\Exception;
 use VitesseCms\Content\Factories\ItemFactory;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\AbstractController;
@@ -17,8 +19,14 @@ use VitesseCms\Spreadshirt\Models\PrintType;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
 
-class ProductController extends AbstractController implements ModuleInterface
+final class ProductController extends AbstractController implements ModuleInterface
 {
+    /**
+     * @return void
+     * @throws Exception
+     *
+     * @deprecated
+     */
     public function renderShopProductAction(): void
     {
         Product::setFindValue('renderShopProduct', '1');
@@ -31,6 +39,13 @@ class ProductController extends AbstractController implements ModuleInterface
         $this->disableView();
     }
 
+    /**
+     * @param AbstractCollection $item
+     * @return void
+     * @throws Exception
+     *
+     * @deprecated
+     */
     protected function renderShopProduct(AbstractCollection $item): void
     {
         if ($item->_('design') && $item->_('productType')) :

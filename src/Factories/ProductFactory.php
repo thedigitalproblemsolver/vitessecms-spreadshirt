@@ -12,11 +12,13 @@ final class ProductFactory
         string $name,
         string $productTypeId,
         string $designId,
+        string $sellableId,
         bool $published = false
     ): Product {
         $product = new Product();
         $product->productType = $productTypeId;
         $product->design = $designId;
+        $product->sellableId = $sellableId;
         $product->set('name', $name);
         $product->setPublished($published);
 

@@ -42,13 +42,14 @@ final class SellableListener
             '[APPEARANCE_ID]',
             $sellableDTO->previewImage
         );
-
+        
         $design = $this->handleDesign($sellableDTO->mainDesignId, $sellableDTO->name);
         $product = $this->handleProduct(
             $design,
             $productType,
             $sellableDTO->appearanceIds,
             $sellableDTO->priceSale,
+            $sellableDTO->sellableId,
             $appearanceBaseUrl
         );
 
@@ -75,6 +76,7 @@ final class SellableListener
         ProductType $productType,
         array $appearanceIds,
         float $priceSale,
+        string $sellableId,
         string $appearanceBaseUrl
     ): Product {
         $productType->setPublished(true);
@@ -91,6 +93,7 @@ final class SellableListener
                 $design->getNameField(),
                 (string)$productType->getId(),
                 (string)$design->getId(),
+                $sellableId,
                 true
             );
         }

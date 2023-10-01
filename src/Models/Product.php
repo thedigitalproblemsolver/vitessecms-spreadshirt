@@ -13,4 +13,5 @@ final class Product extends AbstractCollection
     public ?array $appearances;
     public string $appearanceBaseImageUrl;
     public ?float $priceSale;
+    public ?string $sellableId;
 }
