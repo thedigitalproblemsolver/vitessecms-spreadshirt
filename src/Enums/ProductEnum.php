@@ -9,4 +9,5 @@ enum ProductEnum: string
     case LISTENER = 'ProductListener';
     case GET_REPOSITORY = 'ProductListener:getRepository';
     case CONVERT_TO_SHOP_PRODUCT = 'ProductListener:convertToShopProduct';
+    case DOWNLOAD_IMAGE = 'ProductListener:downloadImage';
 }

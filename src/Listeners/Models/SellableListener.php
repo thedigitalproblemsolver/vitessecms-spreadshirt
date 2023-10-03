@@ -38,32 +38,36 @@ final class SellableListener
 
     public function handleImport(Event $event, SellableDTO $sellableDTO): bool
     {
-        $productType = $this->productTypeRepository->getByProductTypeId($sellableDTO->productTypeId, false);
         $design = $this->handleDesign($sellableDTO->mainDesignId, $sellableDTO->name);
 
-        $appearanceBaseUrl = str_replace(
-            'appearanceId=' . $sellableDTO->defaultAppearanceId,
-            '[APPEARANCE_ID]',
-            $sellableDTO->previewImage
-        );
-
-        $product = $this->handleProduct(
-            $design,
-            $productType,
-            $sellableDTO->appearanceIds,
-            $sellableDTO->priceSale,
-            $sellableDTO->sellableId,
-            $appearanceBaseUrl
-        );
-
         if ($design->baseDesign !== null) {
+            $productType = $this->productTypeRepository->getByProductTypeId($sellableDTO->productTypeId, false);
+            $appearanceBaseUrl = str_replace(
+                'appearanceId=' . $sellableDTO->defaultAppearanceId,
+                '[APPEARANCE_ID]',
+                $sellableDTO->previewImage
+            );
+
+            $product = $this->handleProduct(
+                $design,
+                $productType,
+                $sellableDTO->appearanceIds,
+                $sellableDTO->priceSale,
+                $sellableDTO->sellableId,
+                $appearanceBaseUrl
+            );
             $this->beanstalkService->createListenerJob(
                 'Covert Spreadshirt product to shop Product',
                 ProductEnum::CONVERT_TO_SHOP_PRODUCT->value,
                 $product
             );
+        } else {
+            $this->logService->write(
+                $design->getId(),
+                $design::class,
+                'Desing <b>' . $design->getNameField() . '</b>: baseDesign is missing'
+            );
         }
-
 
         return true;
     }
@@ -103,7 +107,7 @@ final class SellableListener
 
         if ($product === null) {
             $product = ProductFactory::create(
-                $design->getNameField(),
+                $design->getNameField() . ' - ' . $productType->getNameField(),
                 (string)$productType->getId(),
                 (string)$design->getId(),
                 $sellableId,

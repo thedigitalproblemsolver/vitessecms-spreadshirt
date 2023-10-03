@@ -24,13 +24,13 @@ final class AdminMenuListener
                 ->addChild('Products', 'admin/spreadshirt/adminproduct/adminList')
                 ->addChild('Designs', 'admin/spreadshirt/admindesign/adminList')
                 ->addChild('ProductTypes', 'admin/spreadshirt/adminproducttype/adminList')
-                ->addChild('PrintTypes', 'admin/spreadshirt/adminprinttype/adminList')
-                ->addChild('Sellables', 'admin/spreadshirt/adminsellable/adminList')
+                //->addChild('PrintTypes', 'admin/spreadshirt/adminprinttype/adminList')
+                ->addChild('Reload all Products', 'admin/spreadshirt/adminsellable/reload')
                 ->addChild(
                     'Settings',
                     'admin/setting/adminsetting/adminList?filter[name.' . $this->languageShort . ']=spreadshirt'
-                )
-                ->addChild('Render ShopProduct', 'spreadshirt/product/rendershopproduct ');
+                )//->addChild('Render ShopProduct', 'spreadshirt/product/rendershopproduct ')
+            ;
 
             $adminMenu->addDropdown('Spreadshirt', $children);
         endif;

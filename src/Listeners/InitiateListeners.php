@@ -51,7 +51,9 @@ final class InitiateListeners implements InitiateListenersInterface
                 $di->setting,
                 new ProductTypeHelper($di->eventsManager),
                 $di->configuration->getUploadDir(),
-                $di->log
+                $di->log,
+                $di->jobQueue,
+                $di->eventsManager
             )
         );
     }

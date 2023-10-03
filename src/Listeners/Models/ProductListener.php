@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace VitesseCms\Spreadshirt\Listeners\Models;
 
 use Phalcon\Events\Event;
+use Phalcon\Events\Manager;
+use VitesseCms\Content\Controllers\AdminitemController;
 use VitesseCms\Content\Factories\ItemFactory;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Content\Repositories\ItemRepository;
 use VitesseCms\Core\Utils\FileUtil;
 use VitesseCms\Database\Models\FindValue;
 use VitesseCms\Database\Models\FindValueIterator;
+use VitesseCms\Job\Services\BeanstalkService;
 use VitesseCms\Log\Services\LogService;
 use VitesseCms\Setting\Services\SettingService;
 use VitesseCms\Shop\Enum\SizeAndColorEnum;
+use VitesseCms\Spreadshirt\DTO\DownloadImageDTO;
+use VitesseCms\Spreadshirt\Enums\ProductEnum;
 use VitesseCms\Spreadshirt\Enums\ShopEnum;
 use VitesseCms\Spreadshirt\Enums\SpreadShirtSettingEnum;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeHelper;
@@ -34,7 +39,9 @@ final class ProductListener
         private readonly SettingService $settingService,
         private readonly ProductTypeHelper $productTypeHelper,
         private readonly string $uploadDir,
-        private readonly LogService $logService
+        private readonly LogService $logService,
+        private readonly BeanstalkService $beanstalkService,
+        private readonly Manager $eventsManager
     ) {
     }
 
@@ -87,7 +94,6 @@ final class ProductListener
                 $shopProduct->set('gender', $category->getParentId());
                 $shopProduct->setPublished(true);
                 $shopProduct->set('addtocart', true);
-                echo 'nieuw product';
             }
             $shopProduct->set('price_sale', $product->priceSale);
             $shopProduct->set('price', $product->priceSale);
@@ -100,6 +106,12 @@ final class ProductListener
                 $this->settingService->getRaw(SpreadShirtSettingEnum::MAX_DELIVERY->value)
             );
             $this->setVariations($product, $shopProduct, $productType);
+            $this->eventsManager->fire(
+                AdminitemController::class . ':beforeModelSave',
+                new AdminitemController(),
+                $shopProduct
+            );
+
             $shopProduct->save();
         }
     }
@@ -163,19 +175,12 @@ final class ProductListener
                         $product->getNameField() . ' ' . str_replace('/', ' ', $appearance->name) . '.jpg'
                     );
                 if (!is_file($this->uploadDir . $imageFile)) {
-                    $options = [
-                        'http' => [
-                            'user_agent' => 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36' . rand(
-                                )
-                        ]
-                    ];
-                    $context = stream_context_create($options);
-                    file_put_contents(
-                        $this->uploadDir . $imageFile,
-                        file_get_contents(
+                    $this->beanstalkService->createListenerJob(
+                        'Download ' . $appearance->name . ' image from Spreadshirt',
+                        ProductEnum::DOWNLOAD_IMAGE->value,
+                        new DownloadImageDTO(
                             str_replace('[APPEARANCE_ID]', 'appearanceId=' . $appearance->id, $baseImageUrl),
-                            false,
-                            $context
+                            $this->uploadDir . $imageFile
                         )
                     );
                 }
@@ -213,5 +218,32 @@ final class ProductListener
             }
         }
         $shopProduct->set('variations', $variations);
+    }
+
+    public function downloadImage(Event $event, DownloadImageDTO $downloadImageDTO): void
+    {
+        file_put_contents(
+            $downloadImageDTO->target,
+            $this->curl_get_contents($downloadImageDTO->source)
+        );
+
+        $this->logService->message($downloadImageDTO->target . ' downloaded');
+    }
+
+    private function curl_get_contents($url)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt(
+            $ch,
+            CURLOPT_USERAGENT,
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11) AppleWebKit/601.1.56 (KHTML, like Gecko) Version/9.0 Safari/601.1.56'
+        );
+        curl_setopt($ch, CURLOPT_URL, $url);
+        $data = curl_exec($ch);
+        curl_close($ch);
+
+        return $data;
     }
 }
