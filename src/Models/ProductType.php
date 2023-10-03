@@ -11,8 +11,7 @@ class ProductType extends AbstractCollection
     public ?int $productTypeId;
     public string $previewImage;
     public array $sizes;
-    public ?string $productParentItem;
-    public ?string $manufacturer;
+    public ?string $manufacturer = null;
 
     public function getProductTypeId(): ?int
     {

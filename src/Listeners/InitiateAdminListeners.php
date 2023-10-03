@@ -64,7 +64,8 @@ final class InitiateAdminListeners implements InitiateListenersInterface
                 new DesignRepository(),
                 new ProductRepository(),
                 new ProductTypeRepository(),
-                $di->jobQueue
+                $di->jobQueue,
+                $di->log
             )
         );
         $di->eventsManager->attach(
@@ -76,7 +77,8 @@ final class InitiateAdminListeners implements InitiateListenersInterface
                 new DesignRepository(),
                 $di->setting,
                 new ProductTypeHelper($di->eventsManager),
-                $di->configuration->getUploadDir()
+                $di->configuration->getUploadDir(),
+                $di->log
             )
         );
     }

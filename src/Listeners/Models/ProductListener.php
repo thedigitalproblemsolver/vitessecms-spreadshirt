@@ -11,11 +11,13 @@ use VitesseCms\Content\Repositories\ItemRepository;
 use VitesseCms\Core\Utils\FileUtil;
 use VitesseCms\Database\Models\FindValue;
 use VitesseCms\Database\Models\FindValueIterator;
+use VitesseCms\Log\Services\LogService;
 use VitesseCms\Setting\Services\SettingService;
 use VitesseCms\Shop\Enum\SizeAndColorEnum;
 use VitesseCms\Spreadshirt\Enums\ShopEnum;
 use VitesseCms\Spreadshirt\Enums\SpreadShirtSettingEnum;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeHelper;
+use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
 use VitesseCms\Spreadshirt\Repositories\DesignRepository;
@@ -31,7 +33,8 @@ final class ProductListener
         private readonly DesignRepository $designRepository,
         private readonly SettingService $settingService,
         private readonly ProductTypeHelper $productTypeHelper,
-        private readonly string $uploadDir
+        private readonly string $uploadDir,
+        private readonly LogService $logService
     ) {
     }
 
@@ -49,51 +52,95 @@ final class ProductListener
             false
         );
         $productType = $this->productTypeRepository->getById($product->productType);
-
-        if ($shopProduct === null) {
-            $design = $this->designRepository->getById($product->design);
-            $category = $this->itemRepository->getById($productType->productParentItem);
-
-            $shopProduct = ItemFactory::create(
-                $design->getNameField(),
-                $this->settingService->getString(SpreadShirtSettingEnum::BASEPRODUCT_DATAGROUP->value),
-                [],
-                false,
-                $productType->productParentItem
+        $design = $this->designRepository->getById($product->design);
+        $parentId = $this->getParentId($product, $productType, $design);
+        if ($parentId === null) {
+            $this->logService->write(
+                $productType->getId(),
+                $productType::class,
+                'ProductType <b>' . $productType->getNameField() . '</b>: missing a ShopCategory'
             );
-            $shopProduct->set('spreadShirtProductId', (string)$product->getId());
+        } else {
+            if ($shopProduct === null) {
+                $category = $this->itemRepository->getById($parentId);
+
+                $shopProduct = ItemFactory::create(
+                    $design->getNameField(),
+                    $this->settingService->getString(SpreadShirtSettingEnum::BASEPRODUCT_DATAGROUP->value),
+                    [],
+                    false,
+                    $parentId
+                );
+                $shopProduct->set('spreadShirtProductId', (string)$product->getId());
+                $shopProduct->set(
+                    'taxrate',
+                    $this->settingService->getString(SpreadShirtSettingEnum::PRODUCT_TAXRATE->value)
+                );
+                //$shopProduct->set('price_purchase', $productType->_('price_purchase'));
+                $shopProduct->set('manufacturer', $productType->manufacturer);
+                $shopProduct->set('design', $design->baseDesign);
+                //$shopProduct->set('manufacturingTechnique', $printType->_('productionTechnique'));
+                /*$shopProduct->set(
+                    'price',
+                    $productType->_('price_sale') / (100 + (float)$taxrate->_('taxrate')) * 100
+                );*/
+                $shopProduct->set('gender', $category->getParentId());
+                $shopProduct->setPublished(true);
+                $shopProduct->set('addtocart', true);
+                echo 'nieuw product';
+            }
+            $shopProduct->set('price_sale', $product->priceSale);
+            $shopProduct->set('price', $product->priceSale);
             $shopProduct->set(
-                'taxrate',
-                $this->settingService->getString(SpreadShirtSettingEnum::PRODUCT_TAXRATE->value)
+                'minimalDeliveryTime',
+                $this->settingService->getRaw(SpreadShirtSettingEnum::MIN_DELIVERY->value)
             );
-            //$shopProduct->set('price_purchase', $productType->_('price_purchase'));
-            $shopProduct->set('manufacturer', $productType->manufacturer);
-            $shopProduct->set('design', $design->baseDesign);
-            //$shopProduct->set('manufacturingTechnique', $printType->_('productionTechnique'));
-            /*$shopProduct->set(
-                'price',
-                $productType->_('price_sale') / (100 + (float)$taxrate->_('taxrate')) * 100
-            );*/
-            $shopProduct->set('gender', $category->getParentId());
-            $shopProduct->setPublished(true);
-            $shopProduct->set('addtocart', true);
-            echo 'nieuw product';
+            $shopProduct->set(
+                'maximumDeliveryTime',
+                $this->settingService->getRaw(SpreadShirtSettingEnum::MAX_DELIVERY->value)
+            );
+            $this->setVariations($product, $shopProduct, $productType);
+            $shopProduct->save();
         }
-        $shopProduct->set('price_sale', $product->priceSale);
-        $shopProduct->set('price', $product->priceSale);
-        $shopProduct->set(
-            'minimalDeliveryTime',
-            $this->settingService->getRaw(SpreadShirtSettingEnum::MIN_DELIVERY->value)
+    }
+
+    private function getParentId(Product $product, ProductType $productType, Design $design): ?string
+    {
+        $designItem = $this->itemRepository->getById($design->baseDesign);
+        if ($designItem->getString('shopDesignBaseStore') === '') {
+            $this->logService->write(
+                $designItem->getId(),
+                $designItem::class,
+                'Design <b>' . $designItem->getNameField() . '</b>: shopDesignBaseStore is empty'
+            );
+
+            return null;
+        }
+
+        $genders = $this->itemRepository->findAll(
+            new FindValueIterator([new FindValue('parentId', $designItem->getString('shopDesignBaseStore'))]),
+            false
         );
-        $shopProduct->set(
-            'maximumDeliveryTime',
-            $this->settingService->getRaw(SpreadShirtSettingEnum::MAX_DELIVERY->value)
+
+        $genderIds = [];
+        while ($genders->valid()) {
+            $gender = $genders->current();
+            $genderIds[] = (string)$gender->getId();
+            $genders->next();
+        }
+
+        $productItem = $this->itemRepository->findFirst(
+            new FindValueIterator([
+                new FindValue('spreadshirtProductTypes', (string)$productType->getId()),
+                new FindValue('parentId', $genderIds, 'in')
+            ])
         );
-        $this->setVariations($product, $shopProduct, $productType);
-        $shopProduct->save();
-        echo 'product saved';
-        echo 'convertToShopProduct';
-        die();
+
+        if ($productItem !== null) {
+            return (string)$productItem->getId();
+        }
+
+        return null;
     }
 
     private function setVariations(Product $product, Item $shopProduct, ProductType $productType): void

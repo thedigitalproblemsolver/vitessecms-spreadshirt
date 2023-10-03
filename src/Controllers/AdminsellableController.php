@@ -82,7 +82,9 @@ final class AdminsellableController extends AbstractControllerAdmin implements
             );
             $sellableDTOIterator->next();
         }
-        echo 'in reload';
-        die();
+
+        $this->flashService->setSucces('SPREADSHIRT_SELLABLE_RELOAD_SUCCES');
+
+        $this->redirect($this->request->getHTTPReferer());
     }
 }

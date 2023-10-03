@@ -6,6 +6,7 @@ namespace VitesseCms\Spreadshirt\Listeners\Models;
 
 use Phalcon\Events\Event;
 use VitesseCms\Job\Services\BeanstalkService;
+use VitesseCms\Log\Services\LogService;
 use VitesseCms\Spreadshirt\DTO\SellableDTO;
 use VitesseCms\Spreadshirt\Enums\ProductEnum;
 use VitesseCms\Spreadshirt\Factories\DesignFactory;
@@ -25,7 +26,8 @@ final class SellableListener
         private readonly DesignRepository $designRepository,
         private readonly ProductRepository $productRepository,
         private readonly ProductTypeRepository $productTypeRepository,
-        private readonly BeanstalkService $beanstalkService
+        private readonly BeanstalkService $beanstalkService,
+        private readonly LogService $logService
     ) {
     }
 
@@ -34,16 +36,17 @@ final class SellableListener
         return $this->sellableRepository;
     }
 
-    public function handleImport(Event $event, SellableDTO $sellableDTO)
+    public function handleImport(Event $event, SellableDTO $sellableDTO): bool
     {
         $productType = $this->productTypeRepository->getByProductTypeId($sellableDTO->productTypeId, false);
+        $design = $this->handleDesign($sellableDTO->mainDesignId, $sellableDTO->name);
+
         $appearanceBaseUrl = str_replace(
             'appearanceId=' . $sellableDTO->defaultAppearanceId,
             '[APPEARANCE_ID]',
             $sellableDTO->previewImage
         );
-        
-        $design = $this->handleDesign($sellableDTO->mainDesignId, $sellableDTO->name);
+
         $product = $this->handleProduct(
             $design,
             $productType,
@@ -53,11 +56,16 @@ final class SellableListener
             $appearanceBaseUrl
         );
 
-        $this->beanstalkService->createListenerJob(
-            'Covert Spreadshirt product to shop Product',
-            ProductEnum::CONVERT_TO_SHOP_PRODUCT->value,
-            $product
-        );
+        if ($design->baseDesign !== null) {
+            $this->beanstalkService->createListenerJob(
+                'Covert Spreadshirt product to shop Product',
+                ProductEnum::CONVERT_TO_SHOP_PRODUCT->value,
+                $product
+            );
+        }
+
+
+        return true;
     }
 
     private function handleDesign(int $mainDesignId, string $designName): Design
@@ -66,6 +74,11 @@ final class SellableListener
         if ($design === null) {
             $design = DesignFactory::create($designName, $mainDesignId);
             $design->save();
+            $this->logService->write(
+                $design->getId(),
+                Design::class,
+                'Design <b>' . $design->getNameField() . '</b> Created'
+            );
         }
 
         return $design;

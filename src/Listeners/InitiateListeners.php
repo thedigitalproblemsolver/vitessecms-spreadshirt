@@ -19,7 +19,7 @@ use VitesseCms\Spreadshirt\Repositories\ProductRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductTypeRepository;
 use VitesseCms\Spreadshirt\Repositories\SellableRepository;
 
-class InitiateListeners implements InitiateListenersInterface
+final class InitiateListeners implements InitiateListenersInterface
 {
     public static function setListeners(InjectableInterface $di): void
     {
@@ -37,7 +37,8 @@ class InitiateListeners implements InitiateListenersInterface
                 new DesignRepository(),
                 new ProductRepository(),
                 new ProductTypeRepository(),
-                $di->jobQueue
+                $di->jobQueue,
+                $di->log
             )
         );
         $di->eventsManager->attach(
@@ -49,7 +50,8 @@ class InitiateListeners implements InitiateListenersInterface
                 new DesignRepository(),
                 $di->setting,
                 new ProductTypeHelper($di->eventsManager),
-                $di->configuration->getUploadDir()
+                $di->configuration->getUploadDir(),
+                $di->log
             )
         );
     }
