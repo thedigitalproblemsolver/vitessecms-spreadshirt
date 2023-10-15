@@ -1,109 +1,136 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
-use VitesseCms\Admin\AbstractAdminController;
-use VitesseCms\Core\Utils\XmlUtil;
+use ArrayIterator;
+use stdClass;
+use VitesseCms\Admin\Interfaces\AdminModelEditableInterface;
+use VitesseCms\Admin\Interfaces\AdminModelFormInterface;
+use VitesseCms\Admin\Interfaces\AdminModelListInterface;
+use VitesseCms\Admin\Interfaces\AdminModelPublishableInterface;
+use VitesseCms\Admin\Traits\TraitAdminModelEditable;
+use VitesseCms\Admin\Traits\TraitAdminModelList;
+use VitesseCms\Admin\Traits\TraitAdminModelPublishable;
+use VitesseCms\Core\AbstractControllerAdmin;
+use VitesseCms\Database\AbstractCollection;
+use VitesseCms\Database\Models\FindValueIterator;
+use VitesseCms\Spreadshirt\Enums\ProductTypeEnum;
 use VitesseCms\Spreadshirt\Factories\ProductTypeFactory;
 use VitesseCms\Spreadshirt\Forms\ProductTypeForm;
-use VitesseCms\Spreadshirt\Interfaces\RepositoriesInterface;
 use VitesseCms\Spreadshirt\Models\ProductType;
-use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
-use function count;
+use VitesseCms\Spreadshirt\Repositories\ProductTypeRepository;
 
-class AdminproducttypeController
-    extends AbstractAdminController
-    implements RepositoriesInterface, ModuleInterface
+final class AdminproducttypeController extends AbstractControllerAdmin implements
+    AdminModelPublishableInterface,
+    AdminModelEditableInterface,
+    AdminModelListInterface
 {
+    use TraitAdminModelEditable;
+    use TraitAdminModelPublishable;
+    use TraitAdminModelList;
+
+    private readonly ProductTypeRepository $productTypeRepository;
+
     public function onConstruct()
     {
         parent::onConstruct();
 
-        $this->class = ProductType::class;
-        $this->classForm = ProductTypeForm::class;
+        $this->productTypeRepository = $this->eventsManager->fire(
+            ProductTypeEnum::GET_REPOSITORY->value,
+            new stdClass()
+        );
+    }
+
+    public function getModel(string $id): ?AbstractCollection
+    {
+        return match ($id) {
+            'new' => new ProductType(),
+            default => $this->productTypeRepository->getById($id, false)
+        };
+    }
+
+    public function getModelList(?FindValueIterator $findValueIterator): ArrayIterator
+    {
+        return $this->productTypeRepository->findAll(
+            $findValueIterator,
+            false
+        );
+    }
+
+    public function getModelForm(): AdminModelFormInterface
+    {
+        return new ProductTypeForm();
     }
 
     public function reloadAction(): void
     {
-        $productTypes = $this->spreadshirt->productType->getAll();
-        $namespaces = $productTypes->getNamespaces(true);
-        foreach ($productTypes->productType as $productType) :
-            $previewImage = (string)$productType->resources->resource[0]->attributes($namespaces['xlink']);
+        $productTypesDTO = $this->spreadshirt->productType->getAll();
+        $getProductTypeDTOs = $productTypesDTO->getProductTypeDTOs();
+
+        while ($getProductTypeDTOs->valid()) {
+            $productTypeDTO = $getProductTypeDTOs->current();
+            $previewImage = $productTypeDTO->previewImage;
+
             $sizesMap = [];
-            foreach ($productType->sizes->size as $size) :
-                $sizesMap[strtoupper((string)$size->name)] = (int)XmlUtil::getAttribute($size, 'id');
-            endforeach;
+            foreach ($productTypeDTO->sizes as $size) {
+                $sizesMap[strtoupper((string)$size->name)] = (int)$size->id;
+            }
 
             $appearances = [];
-            foreach ($productType->appearances->appearance as $appearance) :
-                $resource = $appearance->resources->resource[0];
-                $attributes = $resource->attributes($this->spreadshirt->product->getNamespaces()['xlink']);
-                $id = (int)XmlUtil::getAttribute($appearance, 'id');
-                $appearances[$id] = [
-                    'color' => strtolower((string)$appearance->colors->color),
-                    'colorId' => $id,
-                    'colorName' => (string)$appearance->name,
-                    'image' => (string)$attributes->href,
+            foreach ($productTypeDTO->appearances as $appearance) {
+                $appearances[(int)$appearance->id] = [
+                    'color' => $appearance->colors[0]->value,
+                    'colorId' => (int)$appearance->id,
+                    'colorName' => $appearance->name,
+                    'image' => $appearance->resources[0]->href,
                     'stockStates' => [],
                 ];
-            endforeach;
+            }
 
             $sizesIdMap = array_flip($sizesMap);
-            foreach ($productType->stockStates->stockState as $stockState) :
-                $appearanceId = (int)XmlUtil::getAttribute($stockState->appearance, 'id');
-                $sizeId = (int)XmlUtil::getAttribute($stockState->size, 'id');
-                $stock = 0;
-                if ((bool)$stockState->available) :
-                    $stock = (int)$stockState->quantity;
+            foreach ($productTypeDTO->stockStates as $stockState) {
+                $appearanceId = (int)$stockState->appearance->id;
+                $sizeId = (int)$stockState->size->id;
+                if ($stockState->available) :
+                    $appearances[$appearanceId]['stockStates'][$sizesIdMap[$sizeId]] = $stockState->quantity;
                 endif;
-                $appearances[$appearanceId]['stockStates'][$sizesIdMap[$sizeId]] = $stock;
-            endforeach;
+            }
 
-
-            $productTypeId = (int)XmlUtil::getAttribute($productType, 'id');
+            $productTypeId = $productTypeDTO->id;
             ProductType::setFindPublished(false);
             ProductType::setFindValue('productTypeId', $productTypeId);
             $productTypeItem = ProductType::findAll();
+
             if (count($productTypeItem) === 0) {
-                ProductType::setFindPublished(false);
-                ProductType::setFindValue('productTypeId', (string)$productTypeId);
-                $productTypeItem = ProductType::findAll();
-                if ($productTypeItem) {
-                    $productTypeItem[0]
-                        ->set('sizesMap', $sizesMap)
-                        ->set('productTypeId', (int)$productTypeId)
-                        ->set('introtext', (string)$productType->shortDescription)
-                        ->set('bodytext', (string)$productType->description)
-                        ->set('previewImage', $previewImage)
-                        ->set('sizeTable', $this->spreadshirt->productType->buildSizeTable($productType, $namespaces))
-                        ->set('appearances', $appearances)
-                        ->save();
-                } else {
-                    ProductTypeFactory::create(
-                        (string)$productType->name,
-                        $productTypeId
-                    )
-                        ->set('sizesMap', $sizesMap)
-                        ->set('introtext', (string)$productType->shortDescription)
-                        ->set('bodytext', (string)$productType->description)
-                        ->set('previewImage', $previewImage)
-                        ->set('sizeTable', $this->spreadshirt->productType->buildSizeTable($productType, $namespaces))
-                        ->set('appearances', $appearances)
-                        ->save();
-                }
-            } elseif (count($productTypeItem) === 1) {
+                ProductTypeFactory::create(
+                    $productTypeDTO->name,
+                    $productTypeId
+                )
+                    ->set('sizesMap', $sizesMap)
+                    ->set('introtext', $productTypeDTO->shortDescription)
+                    ->set('bodytext', $productTypeDTO->description)
+                    ->set('previewImage', $previewImage)
+                    ->set('sizeTable', $this->spreadshirt->productType->buildSizeTable($productTypeDTO))
+                    ->set('appearances', $appearances)
+                    ->save();
+            } else {
                 $productTypeItem[0]
                     ->set('sizesMap', $sizesMap)
-                    ->set('introtext', (string)$productType->shortDescription)
-                    ->set('bodytext', (string)$productType->description)
+                    ->set('introtext', $productTypeDTO->shortDescription)
+                    ->set('bodytext', $productTypeDTO->description)
                     ->set('previewImage', $previewImage)
-                    ->set('sizeTable', $this->spreadshirt->productType->buildSizeTable($productType, $namespaces))
+                    ->set('sizeTable', $this->spreadshirt->productType->buildSizeTable($productTypeDTO))
                     ->set('appearances', $appearances)
                     ->save();
             }
-        endforeach;
 
-        $this->flash->setSucces('ProductTypes reloaded');
-        $this->redirect();
+            $getProductTypeDTOs->next();
+        }
+
+        $this->flashService->setSucces('ProductTypes reloaded');
+
+        $this->redirect($this->request->getHTTPReferer());
     }
 }

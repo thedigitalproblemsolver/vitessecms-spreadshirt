@@ -1,14 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
 use VitesseCms\Admin\AbstractAdminController;
 use VitesseCms\Spreadshirt\Forms\ProductForm;
-use VitesseCms\Spreadshirt\Interfaces\AdminRepositoriesInterface;
-use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
+use VitesseCms\Spreadshirt\Models\Product;
 
-class AdminproductController extends AbstractAdminController implements ModuleInterface, AdminRepositoriesInterface
+class AdminproductController extends AbstractAdminController implements ModuleInterface
 {
     public function onConstruct()
     {

@@ -1,10 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Helpers;
 
+use SimpleXMLElement;
+use VitesseCms\Spreadshirt\DTO\PrintTypeDTO;
 use VitesseCms\Spreadshirt\Factories\PrintTypeApiFactory;
 use VitesseCms\Spreadshirt\Models\PrintTypeApi;
-use SimpleXMLElement;
 
 class PrintTypeHelper extends AbstractSpreadShirtHelper
 {
@@ -13,13 +16,13 @@ class PrintTypeHelper extends AbstractSpreadShirtHelper
         return PrintTypeApiFactory::createFromXml($this->get($id));
     }
 
-    public function get(int $id): SimpleXMLElement
+    public function get(int $id): PrintTypeDTO
     {
         $ch = $this->getCurlInstance($this->baseUrl . 'printTypes/' . $id, 'GET');
         $result = curl_exec($ch);
         curl_close($ch);
 
-        return new SimpleXMLElement($result);
+        return new PrintTypeDTO(json_decode($result));
     }
 
     public function getAll(): SimpleXMLElement

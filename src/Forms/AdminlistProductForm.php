@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Forms;
 
@@ -13,8 +14,7 @@ class AdminlistProductForm extends AbstractAdminlistFilterForm
     public static function getAdminlistForm(
         AbstractFormInterface $form,
         BaseObjectInterface $item
-    ): void
-    {
+    ): void {
         self::addNameField($form);
         $form->_(
             'select',
