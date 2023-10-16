@@ -1,23 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Forms;
 
-use Phalcon\Mvc\Collection\Exception;
+use VitesseCms\Admin\Interfaces\AdminModelFormInterface;
 use VitesseCms\Content\Models\Item;
-use VitesseCms\Core\Interfaces\InjectableInterface;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
 use VitesseCms\Form\Models\Attributes;
 
-/**
- * Class PrintTypeForm
- */
-class PrintTypeForm extends AbstractForm implements InjectableInterface
+final class PrintTypeForm extends AbstractForm implements AdminModelFormInterface
 {
-    /**
-     * @throws Exception
-     */
-    public function initialize(): void
+    public function buildForm(): void
     {
         $productionTechniques = [];
         if ($this->setting->has('SPREADSHIRT_DATAGROUP_PRODUCTIONTECHNIQUES')) :
@@ -30,7 +25,8 @@ class PrintTypeForm extends AbstractForm implements InjectableInterface
                 'Productiontechnique',
                 'productionTechnique',
                 (new Attributes())->setInputClass('select2')
-                    ->setOptions(ElementHelper::arrayToSelectOptions($productionTechniques)))
+                    ->setOptions(ElementHelper::arrayToSelectOptions($productionTechniques))
+            )
             ->addSubmitButton('%CORE_SAVE%');
     }
 }

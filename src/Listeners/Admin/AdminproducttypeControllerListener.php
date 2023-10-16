@@ -1,18 +1,22 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Listeners\Admin;
 
+use Phalcon\Events\Event;
 use VitesseCms\Database\Models\FindValue;
 use VitesseCms\Database\Models\FindValueIterator;
 use VitesseCms\Shop\Models\TaxRate;
 use VitesseCms\Spreadshirt\Controllers\AdminproducttypeController;
-use Phalcon\Events\Event;
 use VitesseCms\Spreadshirt\Models\ProductType;
 
 class AdminproducttypeControllerListener
 {
-    public function beforeModelSave(Event $event, AdminproducttypeController $controller, ProductType $productType): void
-    {
+    public function beforeModelSave(
+        Event $event,
+        AdminproducttypeController $controller,
+        ProductType $productType
+    ): void {
         if (!$productType->_('price_purchase') && $productType->_('productTypeId')) :
             $productTypeXml = $controller->spreadshirt->productType->get((int)$productType->_('productTypeId'));
             $productType->set('price_purchase', (float)$productTypeXml->price->vatExcluded);

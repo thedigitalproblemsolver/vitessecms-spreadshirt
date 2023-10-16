@@ -1,20 +1,20 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Factories;
 
 use VitesseCms\Spreadshirt\Models\Design;
 
-class DesignFactory
+final class DesignFactory
 {
-    public static function create(
-        string $name,
-        string $designId,
-        bool $published = false
-    ): Design
+    public static function create(string $name, int $designId, bool $published = false): Design
     {
-        return (new Design())
-            ->set('name', $name)
-            ->set('designId', $designId)
-            ->set('published', $published);
+        $design = new Design();
+        $design->set('name', $name);
+        $design->designId = $designId;
+        $design->setPublished($published);
+
+        return $design;
     }
 }

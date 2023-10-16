@@ -1,18 +1,18 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Listeners\Admin;
 
-use VitesseCms\Spreadshirt\Controllers\AdminproductController;
-use VitesseCms\Spreadshirt\Models\Design;
-use VitesseCms\Spreadshirt\Models\Product;
 use Phalcon\Events\Event;
-use VitesseCms\Spreadshirt\Models\ProductType;
+use VitesseCms\Spreadshirt\Controllers\AdminproductController;
+use VitesseCms\Spreadshirt\Models\Product;
 
 class AdminproductControllerListener
 {
     public function beforeEdit(Event $event, AdminproductController $controller, Product $product): void
     {
-        if (
+        /*if (
             empty($product->getAppearances())
             && $product->getDesignId() !== null
             && $product->getProductTypeId() !== null
@@ -26,24 +26,26 @@ class AdminproductControllerListener
                 $controller->repositories
             );
             $product->setAppearances($appearances)->save();
-        endif;
+        endif;*/
     }
 
     public function beforeModelSave(Event $event, AdminproductController $controller, Product $product): void
     {
-        if (
+        /*if (
             $controller->request->hasPost('renderSpreadShirt')
             && $product->getDesignId() !== null
             && $product->getProductTypeId() !== null
             && $product->getProductTypePrintAreaId() !== null
             && $product->getPrintTypeId() !== null
         ) :
-            $product->setAppearances($controller->spreadshirt->product->getAppearances(
-                $product,
-                $controller->spreadshirt->productType,
-                $controller->spreadshirt->printType,
-                $controller->repositories
-            ));
+            $product->setAppearances(
+                $controller->spreadshirt->product->getAppearances(
+                    $product,
+                    $controller->spreadshirt->productType,
+                    $controller->spreadshirt->printType,
+                    $controller->repositories
+                )
+            );
         endif;
 
         if ($controller->request->hasPost('selectedVariations')) :
@@ -67,6 +69,6 @@ class AdminproductControllerListener
             $design = Design::findById($product->design);
             $productType = ProductType::findById($product->productType);
             $product->set('name', $productType->_('name') . ' - ' . $design->_('name'), true);
-        endif;
+        endif;*/
     }
 }

@@ -1,7 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
+use Phalcon\Incubator\MongoDB\Mvc\Collection\Exception;
 use VitesseCms\Content\Factories\ItemFactory;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\AbstractController;
@@ -16,8 +19,14 @@ use VitesseCms\Spreadshirt\Models\PrintType;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Models\ProductType;
 
-class ProductController extends AbstractController implements ModuleInterface
+final class ProductController extends AbstractController implements ModuleInterface
 {
+    /**
+     * @return void
+     * @throws Exception
+     *
+     * @deprecated
+     */
     public function renderShopProductAction(): void
     {
         Product::setFindValue('renderShopProduct', '1');
@@ -30,6 +39,13 @@ class ProductController extends AbstractController implements ModuleInterface
         $this->disableView();
     }
 
+    /**
+     * @param AbstractCollection $item
+     * @return void
+     * @throws Exception
+     *
+     * @deprecated
+     */
     protected function renderShopProduct(AbstractCollection $item): void
     {
         if ($item->_('design') && $item->_('productType')) :
@@ -94,9 +110,8 @@ class ProductController extends AbstractController implements ModuleInterface
     protected function setVariations(
         AbstractCollection $item,
         AbstractCollection $newItem,
-        ProductType        $productType
-    ): void
-    {
+        ProductType $productType
+    ): void {
         $productTypeXml = $this->spreadshirt->productType->get((int)$productType->_('productTypeId'));
         $sizes = $variations = [];
         foreach ($productTypeXml->sizes->size as $size) :
@@ -106,7 +121,9 @@ class ProductController extends AbstractController implements ModuleInterface
         $imageDir = $this->config->get('uploadDir');
         foreach ((array)$item->_('appearances') as $appearance) :
             if (isset($item->_('selectedVariations')[$appearance['color']])) :
-                $imageFile = 'products/' . FileUtil::sanatize($item->_('name') . ' ' . $appearance['colorName']) . '.jpg';
+                $imageFile = 'products/' . FileUtil::sanatize(
+                        $item->_('name') . ' ' . $appearance['colorName']
+                    ) . '.jpg';
                 if (!is_file($imageDir . $imageFile)) :
                     file_put_contents(
                         $imageDir . $imageFile,
@@ -126,11 +143,16 @@ class ProductController extends AbstractController implements ModuleInterface
 
                         if (isset($productType->_('appearances')[$appearance['colorId']]['stockStates'][$size])) :
                             $variations[] = [
-                                'sku' => str_replace(' ', '_',
-                                    strtoupper($appearance['colorName'] . '_' . $size)),
+                                'sku' => str_replace(
+                                    ' ',
+                                    '_',
+                                    strtoupper($appearance['colorName'] . '_' . $size)
+                                ),
                                 'size' => $size,
                                 'color' => $appearance['color'],
-                                'stock' => (int)$productType->_('appearances')[$appearance['colorId']]['stockStates'][$size],
+                                'stock' => (int)$productType->_(
+                                    'appearances'
+                                )[$appearance['colorId']]['stockStates'][$size],
                                 'stockMinimal' => 10,
                                 'ean' => '',
                                 'image' => [$imageFile],
