@@ -7,6 +7,8 @@ namespace VitesseCms\Spreadshirt\Listeners;
 use VitesseCms\Content\Repositories\ItemRepository;
 use VitesseCms\Core\Interfaces\InitiateListenersInterface;
 use VitesseCms\Core\Interfaces\InjectableInterface;
+use VitesseCms\Shop\Models\TaxRate;
+use VitesseCms\Shop\Repositories\TaxRateRepository;
 use VitesseCms\Spreadshirt\Controllers\AdmindesignController;
 use VitesseCms\Spreadshirt\Controllers\AdminprinttypeController;
 use VitesseCms\Spreadshirt\Controllers\AdminproductController;
@@ -81,7 +83,8 @@ final class InitiateAdminListeners implements InitiateListenersInterface
                 $di->configuration->getUploadDir(),
                 $di->log,
                 $di->jobQueue,
-                $di->eventsManager
+                $di->eventsManager,
+                new TaxRateRepository(TaxRate::class)
             )
         );
     }

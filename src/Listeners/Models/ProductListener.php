@@ -17,6 +17,7 @@ use VitesseCms\Job\Services\BeanstalkService;
 use VitesseCms\Log\Services\LogService;
 use VitesseCms\Setting\Services\SettingService;
 use VitesseCms\Shop\Enum\SizeAndColorEnum;
+use VitesseCms\Shop\Repositories\TaxRateRepository;
 use VitesseCms\Spreadshirt\DTO\DownloadImageDTO;
 use VitesseCms\Spreadshirt\Enums\ProductEnum;
 use VitesseCms\Spreadshirt\Enums\ShopEnum;
@@ -41,7 +42,8 @@ final class ProductListener
         private readonly string $uploadDir,
         private readonly LogService $logService,
         private readonly BeanstalkService $beanstalkService,
-        private readonly Manager $eventsManager
+        private readonly Manager $eventsManager,
+        private readonly TaxRateRepository $taxRateRepository
     ) {
     }
 
@@ -61,6 +63,9 @@ final class ProductListener
         $productType = $this->productTypeRepository->getById($product->productType);
         $design = $this->designRepository->getById($product->design);
         $parentId = $this->getParentId($product, $productType, $design);
+        $taxRateModel = $this->taxRateRepository->getById(
+            $this->settingService->getString(SpreadShirtSettingEnum::PRODUCT_TAXRATE->value)
+        );
         if ($parentId === null) {
             $this->logService->write(
                 $productType->getId(),
@@ -84,19 +89,15 @@ final class ProductListener
                     $this->settingService->getString(SpreadShirtSettingEnum::PRODUCT_TAXRATE->value)
                 );
                 //$shopProduct->set('price_purchase', $productType->_('price_purchase'));
-                $shopProduct->set('manufacturer', $productType->manufacturer);
                 $shopProduct->set('design', $design->baseDesign);
                 //$shopProduct->set('manufacturingTechnique', $printType->_('productionTechnique'));
-                /*$shopProduct->set(
-                    'price',
-                    $productType->_('price_sale') / (100 + (float)$taxrate->_('taxrate')) * 100
-                );*/
                 $shopProduct->set('gender', $category->getParentId());
                 $shopProduct->setPublished(true);
                 $shopProduct->set('addtocart', true);
             }
+            $shopProduct->set('manufacturer', $productType->manufacturer);
             $shopProduct->set('price_sale', $product->priceSale);
-            $shopProduct->set('price', $product->priceSale);
+            $shopProduct->set('price', $product->priceSale / (100 + $taxRateModel->taxrate) * 100);
             $shopProduct->set(
                 'minimalDeliveryTime',
                 $this->settingService->getRaw(SpreadShirtSettingEnum::MIN_DELIVERY->value)
