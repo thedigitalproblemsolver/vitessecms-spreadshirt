@@ -28,6 +28,7 @@ use VitesseCms\Spreadshirt\Listeners\Models\PrintTypeListener;
 use VitesseCms\Spreadshirt\Listeners\Models\ProductListener;
 use VitesseCms\Spreadshirt\Listeners\Models\ProductTypeListener;
 use VitesseCms\Spreadshirt\Listeners\Models\SellableListener;
+use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Repositories\DesignRepository;
 use VitesseCms\Spreadshirt\Repositories\PrintTypeRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductRepository;
@@ -62,7 +63,7 @@ final class InitiateAdminListeners implements InitiateListenersInterface
             new SellableListener(
                 new SellableRepository(),
                 new DesignRepository(),
-                new ProductRepository(),
+                new ProductRepository(Product::class),
                 new ProductTypeRepository(),
                 $di->jobQueue,
                 $di->log
@@ -71,7 +72,7 @@ final class InitiateAdminListeners implements InitiateListenersInterface
         $di->eventsManager->attach(
             ProductEnum::LISTENER->value,
             new ProductListener(
-                new ProductRepository(),
+                new ProductRepository(Product::class),
                 new ItemRepository(),
                 new ProductTypeRepository(),
                 new DesignRepository(),
