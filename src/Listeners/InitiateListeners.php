@@ -7,6 +7,8 @@ namespace VitesseCms\Spreadshirt\Listeners;
 use VitesseCms\Content\Repositories\ItemRepository;
 use VitesseCms\Core\Interfaces\InitiateListenersInterface;
 use VitesseCms\Core\Interfaces\InjectableInterface;
+use VitesseCms\Shop\Models\TaxRate;
+use VitesseCms\Shop\Repositories\TaxRateRepository;
 use VitesseCms\Spreadshirt\Enums\ProductEnum;
 use VitesseCms\Spreadshirt\Enums\SellableEnum;
 use VitesseCms\Spreadshirt\Enums\SpreadShirtSettingEnum;
@@ -54,7 +56,8 @@ final class InitiateListeners implements InitiateListenersInterface
                 $di->configuration->getUploadDir(),
                 $di->log,
                 $di->jobQueue,
-                $di->eventsManager
+                $di->eventsManager,
+                new TaxRateRepository(TaxRate::class)
             )
         );
     }
