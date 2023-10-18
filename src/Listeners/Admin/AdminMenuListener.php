@@ -26,6 +26,7 @@ final class AdminMenuListener
                 ->addChild('ProductTypes', 'admin/spreadshirt/adminproducttype/adminList')
                 //->addChild('PrintTypes', 'admin/spreadshirt/adminprinttype/adminList')
                 ->addChild('Reload all Products', 'admin/spreadshirt/adminsellable/reload')
+                ->addChild('Reload new Products', 'admin/spreadshirt/adminsellable/reloadnew')
                 ->addChild(
                     'Settings',
                     'admin/setting/adminsetting/adminList?filter[name.' . $this->languageShort . ']=spreadshirt'
