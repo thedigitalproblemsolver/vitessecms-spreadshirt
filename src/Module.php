@@ -14,6 +14,7 @@ use VitesseCms\Spreadshirt\Helpers\ProductHelper;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeHelper;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeViewHelper;
 use VitesseCms\Spreadshirt\Helpers\SellableHelper;
+use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Repositories\DesignRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductTypeRepository;
@@ -39,7 +40,7 @@ class Module extends AbstractModule
         $di->setShared(
             'repositories',
             new RepositoryCollection(
-                new ProductRepository(),
+                new ProductRepository(Product::class),
                 new ItemRepository(),
                 new DesignRepository(),
                 new ProductTypeRepository()
