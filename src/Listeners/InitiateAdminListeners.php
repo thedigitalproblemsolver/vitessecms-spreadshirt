@@ -14,22 +14,25 @@ use VitesseCms\Spreadshirt\Controllers\AdminprinttypeController;
 use VitesseCms\Spreadshirt\Controllers\AdminproductController;
 use VitesseCms\Spreadshirt\Controllers\AdminproducttypeController;
 use VitesseCms\Spreadshirt\Controllers\AdminsellableController;
+use VitesseCms\Spreadshirt\Enums\DesignEnum;
 use VitesseCms\Spreadshirt\Enums\PrintTypeEnum;
 use VitesseCms\Spreadshirt\Enums\ProductEnum;
 use VitesseCms\Spreadshirt\Enums\ProductTypeEnum;
 use VitesseCms\Spreadshirt\Enums\SellableEnum;
 use VitesseCms\Spreadshirt\Enums\SpreadShirtSettingEnum;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeHelper;
-use VitesseCms\Spreadshirt\Listeners\Admin\AdmindesignControllerListener;
+use VitesseCms\Spreadshirt\Listeners\Controllers\AdmindesignControllerListener;
 use VitesseCms\Spreadshirt\Listeners\Admin\AdminMenuListener;
 use VitesseCms\Spreadshirt\Listeners\Admin\AdminproductControllerListener;
 use VitesseCms\Spreadshirt\Listeners\Controllers\AdminprinttypeControllerListeners;
 use VitesseCms\Spreadshirt\Listeners\Controllers\AdminproducttypeControllerListener;
 use VitesseCms\Spreadshirt\Listeners\Controllers\AdminsellableControllerListeners;
+use VitesseCms\Spreadshirt\Listeners\Models\DesignListener;
 use VitesseCms\Spreadshirt\Listeners\Models\PrintTypeListener;
 use VitesseCms\Spreadshirt\Listeners\Models\ProductListener;
 use VitesseCms\Spreadshirt\Listeners\Models\ProductTypeListener;
 use VitesseCms\Spreadshirt\Listeners\Models\SellableListener;
+use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Repositories\DesignRepository;
 use VitesseCms\Spreadshirt\Repositories\PrintTypeRepository;
@@ -59,12 +62,13 @@ final class InitiateAdminListeners implements InitiateListenersInterface
             ProductTypeEnum::LISTENER->value,
             new ProductTypeListener(new ProductTypeRepository())
         );
+        $di->eventsManager->attach(DesignEnum::LISTENER->value, new DesignListener(Design::class));
         $di->eventsManager->attach(PrintTypeEnum::LISTENER->value, new PrintTypeListener(new PrintTypeRepository()));
         $di->eventsManager->attach(
             SellableEnum::LISTENER->value,
             new SellableListener(
                 new SellableRepository(),
-                new DesignRepository(),
+                new DesignRepository(Design::class),
                 new ProductRepository(Product::class),
                 new ProductTypeRepository(),
                 $di->jobQueue,
@@ -77,7 +81,7 @@ final class InitiateAdminListeners implements InitiateListenersInterface
                 new ProductRepository(Product::class),
                 new ItemRepository(),
                 new ProductTypeRepository(),
-                new DesignRepository(),
+                new DesignRepository(Design::class),
                 $di->setting,
                 new ProductTypeHelper($di->eventsManager),
                 $di->configuration->getUploadDir(),

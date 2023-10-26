@@ -16,6 +16,7 @@ use VitesseCms\Spreadshirt\Helpers\ProductTypeHelper;
 use VitesseCms\Spreadshirt\Listeners\Admin\AdminMenuListener;
 use VitesseCms\Spreadshirt\Listeners\Models\ProductListener;
 use VitesseCms\Spreadshirt\Listeners\Models\SellableListener;
+use VitesseCms\Spreadshirt\Models\Design;
 use VitesseCms\Spreadshirt\Models\Product;
 use VitesseCms\Spreadshirt\Repositories\DesignRepository;
 use VitesseCms\Spreadshirt\Repositories\ProductRepository;
@@ -37,7 +38,7 @@ final class InitiateListeners implements InitiateListenersInterface
             SellableEnum::LISTENER->value,
             new SellableListener(
                 new SellableRepository(),
-                new DesignRepository(),
+                new DesignRepository(Design::class),
                 new ProductRepository(Product::class),
                 new ProductTypeRepository(),
                 $di->jobQueue,
@@ -50,7 +51,7 @@ final class InitiateListeners implements InitiateListenersInterface
                 new ProductRepository(Product::class),
                 new ItemRepository(),
                 new ProductTypeRepository(),
-                new DesignRepository(),
+                new DesignRepository(Design::class),
                 $di->setting,
                 new ProductTypeHelper($di->eventsManager),
                 $di->configuration->getUploadDir(),
