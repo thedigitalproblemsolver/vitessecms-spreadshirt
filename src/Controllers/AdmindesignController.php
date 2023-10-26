@@ -4,102 +4,60 @@ declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Controllers;
 
-use VitesseCms\Admin\AbstractAdminController;
-use VitesseCms\Core\Utils\XmlUtil;
-use VitesseCms\Database\Models\FindValue;
+use VitesseCms\Admin\Interfaces\AdminModelDeletableInterface;
+use VitesseCms\Admin\Interfaces\AdminModelEditableInterface;
+use VitesseCms\Admin\Interfaces\AdminModelFormInterface;
+use VitesseCms\Admin\Interfaces\AdminModelListInterface;
+use VitesseCms\Admin\Interfaces\AdminModelPublishableInterface;
+use VitesseCms\Admin\Traits\TraitAdminModelDeletable;
+use VitesseCms\Admin\Traits\TraitAdminModelEditable;
+use VitesseCms\Admin\Traits\TraitAdminModelList;
+use VitesseCms\Admin\Traits\TraitAdminModelPublishable;
+use VitesseCms\Core\AbstractControllerAdmin;
+use VitesseCms\Database\AbstractCollection;
 use VitesseCms\Database\Models\FindValueIterator;
-use VitesseCms\Form\Forms\BaseForm;
-use VitesseCms\Form\Models\Attributes;
-use VitesseCms\Spreadshirt\Factories\DesignFactory;
-use VitesseCms\Spreadshirt\Factories\ProductFactory;
+use VitesseCms\Spreadshirt\Enums\DesignEnum;
 use VitesseCms\Spreadshirt\Forms\DesignForm;
-use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
-use VitesseCms\Spreadshirt\Interfaces\RepositoriesInterface;
 use VitesseCms\Spreadshirt\Models\Design;
-use VitesseCms\Spreadshirt\Models\Product;
-use VitesseCms\Spreadshirt\Models\ProductType;
+use VitesseCms\Spreadshirt\Repositories\DesignRepository;
+use stdClass;
+use ArrayIterator;
 
-class AdmindesignController extends AbstractAdminController implements ModuleInterface, RepositoriesInterface
+class AdmindesignController extends AbstractControllerAdmin implements
+    AdminModelListInterface,
+    AdminModelDeletableInterface,
+    AdminModelPublishableInterface,
+    AdminModelEditableInterface
 {
+    use TraitAdminModelList;
+    use TraitAdminModelDeletable;
+    use TraitAdminModelPublishable;
+    use TraitAdminModelEditable;
+
+    private DesignRepository $designRepository;
+
     public function onConstruct()
     {
         parent::onConstruct();
 
-        $this->class = Design::class;
-        $this->classForm = DesignForm::class;
+        $this->designRepository = $this->eventsManager->fire(DesignEnum::GET_REPOSITORY->value, new stdClass());
     }
 
-    public function generateProductsAction(string $designId): void
+    public function getModel(string $id): ?AbstractCollection
     {
-        $design = Design::findById($designId);
-        $productTypes = ProductType::findAll();
-        $counter = 0;
-        foreach ($productTypes as $productType) :
-            Product::setFindValue('design', $designId);
-            Product::setFindValue('productType', (string)$productType->getId());
-            Product::setFindPublished(false);
-            if (
-                Product::count() === 0
-                && !empty($productType->_('productTypePrintAreaId'))
-                && !empty($productType->_('printTypeId'))
-                && !empty($design->_('scale'))
-            ) :
-                ProductFactory::create(
-                    (string)$productType->getId(),
-                    $productType->_('productTypePrintAreaId'),
-                    $designId,
-                    $productType->_('printTypeId'),
-                    (float)$design->_('scale')
-                )->save();
-                $counter++;
-            endif;
-        endforeach;
-        $this->flash->message('notice', $counter . ' products created');
-        $this->redirect();
+        return match ($id) {
+            'new' => new Design(),
+            default => $this->designRepository->getById($id, false)
+        };
     }
 
-    public function importFormAction(): void
+    public function getModelList(?FindValueIterator $findValueIterator): ArrayIterator
     {
-        $spreadshirtDesigns = $this->spreadshirt->design->getAll();
-        var_dump($spreadshirtDesigns);
-        die();
-
-        $form = new BaseForm();
-        foreach ($spreadshirtDesigns->design as $design):
-            $designId = XmlUtil::getAttribute($design, 'id');
-            $designs = $this->repositories->design->countAll(
-                new FindValueIterator([new FindValue('designId', $designId)]),
-                false
-            );
-            if ($designs === 0) :
-                $form->addToggle(
-                    (string)$design->name,
-                    'design[' . $designId . ']',
-                    (new Attributes())->setDefaultValue($designId)
-                );
-            endif;
-        endforeach;
-
-        $form->addSubmitButton('Import');
-        $this->view->setVar('content', $form->renderForm('admin/spreadshirt/admindesign/parseImportForm'));
-
-        $this->prepareView();
+        return $this->designRepository->findAll($findValueIterator,false);
     }
 
-    public function parseImportFormAction(): void
+    public function getModelForm(): AdminModelFormInterface
     {
-        foreach ($this->request->get('design') as $designId):
-            $designs = $this->repositories->design->countAll(
-                new FindValueIterator([new FindValue('designId', $designId)]),
-                false
-            );
-            if ($designs === 0) :
-                $design = $this->spreadshirt->design->get($designId);
-                DesignFactory::create((string)$design->name, $designId)->save();
-            endif;
-        endforeach;
-
-        $this->flash->setSucces('The designs are imported');
-        $this->redirect();
+        return new DesignForm();
     }
 }
