@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace VitesseCms\Spreadshirt\Repositories;
 
+use VitesseCms\Database\Models\FindOrderIterator;
 use VitesseCms\Database\Models\FindValueIterator;
+use VitesseCms\Database\Traits\TraitRepositoryConstructor;
+use VitesseCms\Database\Traits\TraitRepositoryParseFindAll;
+use VitesseCms\Database\Traits\TraitRepositoryParseGetById;
 use VitesseCms\Spreadshirt\Models\Design;
+use VitesseCms\Spreadshirt\Models\DesignIterator;
 
 class DesignRepository
 {
-    public function countAll(
-        ?FindValueIterator $findValues = null,
-        bool $hideUnpublished = true
-    ): int {
+    use TraitRepositoryParseGetById;
+    use TraitRepositoryParseFindAll;
+    use TraitRepositoryConstructor;
+
+    public function countAll(?FindValueIterator $findValues = null, bool $hideUnpublished = true): int {
         Design::setFindPublished($hideUnpublished);
 
         if ($findValues !== null) :
@@ -32,15 +38,17 @@ class DesignRepository
 
     public function getById(string $id, bool $hideUnpublished = true): ?Design
     {
-        Design::setFindPublished($hideUnpublished);
+        return $this->parseGetById($id, $hideUnpublished);
+    }
 
-        /** @var Design $design */
-        $design = Design::findById($id);
-        if (is_object($design)):
-            return $design;
-        endif;
-
-        return null;
+    public function findAll(
+        ?FindValueIterator $findValueIterator = null,
+        bool $hideUnpublished = true,
+        ?int $limit = null,
+        ?FindOrderIterator $findOrders = null,
+        ?array $returnFields = null
+    ): DesignIterator {
+        return $this->parseFindAll($findValueIterator, $hideUnpublished, $limit,$findOrders, $returnFields);
     }
 
     public function getByDesignId(int $designId, bool $hideUnpublished = true): ?Design

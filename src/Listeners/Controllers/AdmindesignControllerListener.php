@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace VitesseCms\Spreadshirt\Listeners\Admin;
+namespace VitesseCms\Spreadshirt\Listeners\Controllers;
 
 use Phalcon\Events\Event;
+use VitesseCms\Admin\Forms\AdminlistFormInterface;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Core\Utils\XmlUtil;
 use VitesseCms\Database\Models\FindValue;
@@ -12,8 +13,13 @@ use VitesseCms\Spreadshirt\Controllers\AdmindesignController;
 use VitesseCms\Spreadshirt\Models\Design;
 use function count;
 
-class AdmindesignControllerListener
+final class AdmindesignControllerListener
 {
+    public function adminListFilter(Event $event, AdmindesignController $controller, AdminlistFormInterface $form): void {
+        $form->addNameField($form);
+        $form->addPublishedField($form);
+    }
+
     public function beforeModelSave(Event $event, AdmindesignController $controller, Design $design): void
     {
         if (!$design->_('designId')) :

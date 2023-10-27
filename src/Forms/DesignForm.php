@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VitesseCms\Spreadshirt\Forms;
 
 use Phalcon\Tag;
+use VitesseCms\Admin\Interfaces\AdminModelFormInterface;
 use VitesseCms\Content\Models\Item;
 use VitesseCms\Form\AbstractForm;
 use VitesseCms\Form\Helpers\ElementHelper;
@@ -13,9 +14,9 @@ use VitesseCms\Spreadshirt\Enums\SpreadShirtSettingEnum;
 use VitesseCms\Spreadshirt\Interfaces\ModuleInterface;
 use VitesseCms\Spreadshirt\Models\Design;
 
-final class DesignForm extends AbstractForm implements ModuleInterface
+final class DesignForm extends AbstractForm implements AdminModelFormInterface
 {
-    public function initialize(Design $item): void
+    public function buildForm(): void
     {
         $datagroup = $this->setting->get(SpreadShirtSettingEnum::DESIGN_DATAGROUP->value);
         Item::setFindValue('datagroup', $datagroup);
@@ -24,9 +25,9 @@ final class DesignForm extends AbstractForm implements ModuleInterface
         $designs = Item::findAll();
         
         $html = '';
-        if ($item->_('baseDesign')) {
+        if ($this->entity->_('baseDesign')) {
             Item::setFindPublished(false);
-            $design = Item::findById($item->_('baseDesign'));
+            $design = Item::findById($this->entity->_('baseDesign'));
             $file = $this->config->get('uploadDir') . $design->_('spreadshirtRasterizedImage');
             if (is_file($file)) {
                 $html = '<br />' . Tag::image([
