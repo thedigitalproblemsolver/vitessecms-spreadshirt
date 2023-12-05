@@ -25,7 +25,7 @@
     "ext-simplexml": "*",
     "ext-curl": "*",
     "vitessecms/setting": "^1.2.0",
-    "vitessecms/core": "^1.7.0",
+    "vitessecms/core": "^1.7.1",
     "vitessecms/admin": "^1.8.1",
     "vitessecms/mustache": "^1.8.1",
     "vitessecms/shop": "^1.1.2"
