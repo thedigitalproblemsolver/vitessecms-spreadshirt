@@ -21,9 +21,9 @@ use VitesseCms\Spreadshirt\Enums\ProductTypeEnum;
 use VitesseCms\Spreadshirt\Enums\SellableEnum;
 use VitesseCms\Spreadshirt\Enums\SpreadShirtSettingEnum;
 use VitesseCms\Spreadshirt\Helpers\ProductTypeHelper;
-use VitesseCms\Spreadshirt\Listeners\Controllers\AdmindesignControllerListener;
 use VitesseCms\Spreadshirt\Listeners\Admin\AdminMenuListener;
 use VitesseCms\Spreadshirt\Listeners\Admin\AdminproductControllerListener;
+use VitesseCms\Spreadshirt\Listeners\Controllers\AdmindesignControllerListener;
 use VitesseCms\Spreadshirt\Listeners\Controllers\AdminprinttypeControllerListeners;
 use VitesseCms\Spreadshirt\Listeners\Controllers\AdminproducttypeControllerListener;
 use VitesseCms\Spreadshirt\Listeners\Controllers\AdminsellableControllerListeners;
@@ -42,18 +42,18 @@ use VitesseCms\Spreadshirt\Repositories\SellableRepository;
 
 final class InitiateAdminListeners implements InitiateListenersInterface
 {
-    public static function setListeners(InjectableInterface $di): void
+    public static function setListeners(InjectableInterface $injectable): void
     {
-        $di->eventsManager->attach(
+        $injectable->eventsManager->attach(
             'adminMenu',
             new AdminMenuListener(
-                $di->setting->has(SpreadShirtSettingEnum::API_KEY->value),
-                $di->configuration->getLanguageShort()
+                $injectable->setting->has(SpreadShirtSettingEnum::API_KEY->value),
+                $injectable->configuration->getLanguageShort()
             )
         );
 
-        self::addModels($di);
-        self::addControllers($di);
+        self::addModels($injectable);
+        self::addControllers($injectable);
     }
 
     private static function addModels(InjectableInterface $di): void

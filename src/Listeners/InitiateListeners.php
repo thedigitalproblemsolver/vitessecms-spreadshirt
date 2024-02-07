@@ -25,39 +25,39 @@ use VitesseCms\Spreadshirt\Repositories\SellableRepository;
 
 final class InitiateListeners implements InitiateListenersInterface
 {
-    public static function setListeners(InjectableInterface $di): void
+    public static function setListeners(InjectableInterface $injectable): void
     {
-        $di->eventsManager->attach(
+        $injectable->eventsManager->attach(
             'adminMenu',
             new AdminMenuListener(
-                $di->setting->has(SpreadShirtSettingEnum::API_KEY->value),
-                $di->configuration->getLanguageShort()
+                $injectable->setting->has(SpreadShirtSettingEnum::API_KEY->value),
+                $injectable->configuration->getLanguageShort()
             )
         );
-        $di->eventsManager->attach(
+        $injectable->eventsManager->attach(
             SellableEnum::LISTENER->value,
             new SellableListener(
                 new SellableRepository(),
                 new DesignRepository(Design::class),
                 new ProductRepository(Product::class),
                 new ProductTypeRepository(),
-                $di->jobQueue,
-                $di->log
+                $injectable->jobQueue,
+                $injectable->log
             )
         );
-        $di->eventsManager->attach(
+        $injectable->eventsManager->attach(
             ProductEnum::LISTENER->value,
             new ProductListener(
                 new ProductRepository(Product::class),
                 new ItemRepository(),
                 new ProductTypeRepository(),
                 new DesignRepository(Design::class),
-                $di->setting,
-                new ProductTypeHelper($di->eventsManager),
-                $di->configuration->getUploadDir(),
-                $di->log,
-                $di->jobQueue,
-                $di->eventsManager,
+                $injectable->setting,
+                new ProductTypeHelper($injectable->eventsManager),
+                $injectable->configuration->getUploadDir(),
+                $injectable->log,
+                $injectable->jobQueue,
+                $injectable->eventsManager,
                 new TaxRateRepository(TaxRate::class)
             )
         );
