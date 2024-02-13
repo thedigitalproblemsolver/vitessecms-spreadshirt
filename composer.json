@@ -27,7 +27,7 @@
     "vitessecms/setting": "^1.2.0",
     "vitessecms/core": "^1.8.0",
     "vitessecms/admin": "^1.15.0",
-    "vitessecms/mustache": "^1.8.1",
+    "vitessecms/mustache": "^1.8.2",
     "vitessecms/shop": "^1.1.2"
   }
 }
